@@ -23,8 +23,9 @@ import io.quarkus.logging.Log;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.Scanner;
 
 @ApplicationScoped
 public class Version {
@@ -33,11 +34,12 @@ public class Version {
 
     @PostConstruct
     public void init() {
-        try (Scanner s = new Scanner(Objects.requireNonNull(Version.class.getClassLoader()
-                .getResourceAsStream("/version.txt"))).useDelimiter("\\A")) {
-            git = s.hasNext() ? s.next() : "";
+        try (final InputStream is = Objects.requireNonNull(Version.class.getClassLoader()
+                .getResourceAsStream("version.txt"))) {
+            git = new String(is.readAllBytes(), StandardCharsets.US_ASCII);
         } catch (Exception e) {
-            Log.error(e.getMessage());
+            git = "Unknown";
+            Log.error("Failed to determine version. Missing version.txt resource?", e);
         }
     }
 
