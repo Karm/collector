@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.site;
+package com.redhat.quarkus.mandrel.collector.site;
 
-import biz.karms.reporter.collector.Version;
+import com.redhat.quarkus.mandrel.collector.Version;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;

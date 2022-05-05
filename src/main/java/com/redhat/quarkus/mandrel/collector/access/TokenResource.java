@@ -17,10 +17,10 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.access;
+package com.redhat.quarkus.mandrel.collector.access;
 
-import biz.karms.reporter.collector.access.model.Token;
-import biz.karms.reporter.collector.access.model.User;
+import com.redhat.quarkus.mandrel.collector.access.model.Token;
+import com.redhat.quarkus.mandrel.collector.access.model.User;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.security.RolesAllowed;
@@ -39,9 +39,6 @@ import javax.ws.rs.core.SecurityContext;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static biz.karms.reporter.collector.access.TokenRepository.hash;
-import static biz.karms.reporter.collector.access.TokenRepository.randomStringHashed;
 
 @Path("/api/tokens")
 public class TokenResource {
@@ -77,7 +74,7 @@ public class TokenResource {
         if (permissions == null || !permPattern.matcher(permissions).matches()) {
             return Response.serverError().entity(String.format(tokensErrorPermissionMatch, permPattern)).build();
         }
-        final String clearText = randomStringHashed();
+        final String clearText = TokenRepository.randomStringHashed();
         final User user = User.find("username", securityContext.getUserPrincipal().getName()).firstResult();
         Token.add(user, permissions, clearText);
         return Response.status(Response.Status.CREATED).entity(String.format(tokensSuccessCreated, clearText)).build();
@@ -94,7 +91,7 @@ public class TokenResource {
             return Response.serverError().entity(String.format(signupErrorTokenMatch, tokenPattern)).build();
         }
         final List<Token> tl = tokenRepository.findByUsernameTokenHash(securityContext.getUserPrincipal().getName(),
-                hash(token));
+                TokenRepository.hash(token));
         if (tl == null || tl.isEmpty()) {
             return Response.serverError().entity(tokensErrorNotFound).build();
         }

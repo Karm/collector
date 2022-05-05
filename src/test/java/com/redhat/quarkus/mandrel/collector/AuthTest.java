@@ -17,22 +17,23 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.access;
+package com.redhat.quarkus.mandrel.collector;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
 
-@Path("/api/admin")
-public class AdminResource {
+import javax.ws.rs.core.Response;
 
-    // TODO make someone else admin
-    @GET
-    @RolesAllowed("admin")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String adminResource() {
-        return "admin";
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@QuarkusTest
+public class AuthTest {
+
+    @Test
+    public void apiAccessibleSanity() {
+        assertEquals(Response.Status.OK.getStatusCode(), given().when().get("/api/public/version").statusCode(),
+                "API should be up and running.");
     }
+
 }

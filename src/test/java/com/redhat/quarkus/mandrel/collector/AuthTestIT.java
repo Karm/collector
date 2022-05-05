@@ -17,25 +17,10 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.access;
+package com.redhat.quarkus.mandrel.collector;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 
-@Path("/api/users")
-public class UserResource {
-
-    @GET
-    @RolesAllowed("user")
-    @Path("/me")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String me(@Context SecurityContext securityContext) {
-        return securityContext.getUserPrincipal().getName();
-    }
-
+@QuarkusIntegrationTest
+public class AuthTestIT extends AuthTest {
 }

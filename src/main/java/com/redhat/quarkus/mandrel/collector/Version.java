@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector;
+package com.redhat.quarkus.mandrel.collector;
 
 import io.quarkus.logging.Log;
 

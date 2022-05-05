@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.access;
+package com.redhat.quarkus.mandrel.collector.access;
 
-import biz.karms.reporter.collector.access.model.Token;
+import com.redhat.quarkus.mandrel.collector.access.model.Token;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 import javax.enterprise.context.ApplicationScoped;

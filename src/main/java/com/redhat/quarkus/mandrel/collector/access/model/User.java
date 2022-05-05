@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.access.model;
+package com.redhat.quarkus.mandrel.collector.access.model;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -31,7 +31,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.security.NoSuchAlgorithmException;
 
-import static biz.karms.reporter.collector.access.TokenRepository.hash;
+import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.hash;
 
 @Entity
 @Table(name = "user")

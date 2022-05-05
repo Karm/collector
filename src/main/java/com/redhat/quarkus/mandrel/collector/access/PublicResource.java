@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-package biz.karms.reporter.collector.access;
+package com.redhat.quarkus.mandrel.collector.access;
 
-import biz.karms.reporter.collector.access.model.User;
+import com.redhat.quarkus.mandrel.collector.access.model.User;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.reactive.ReactiveMailer;
@@ -35,9 +35,9 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.regex.Pattern;
 
-import static biz.karms.reporter.collector.access.TokenRepository.hash;
-import static biz.karms.reporter.collector.access.TokenRepository.randomStringHashed;
-import static biz.karms.reporter.collector.access.TokenResource.tokenPattern;
+import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.hash;
+import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.randomStringHashed;
+import static com.redhat.quarkus.mandrel.collector.access.TokenResource.tokenPattern;
 
 /**
  * TODO: User last login filed is not populated....
