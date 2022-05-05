@@ -1,0 +1,47 @@
+name: Tests
+
+on:
+  push:
+    paths-ignore:
+     - 'LICENSE'
+     - '**.md'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+     - 'LICENSE'
+     - '**.md'
+
+env:
+  LANG: en_US.UTF-8
+
+jobs:
+  run-units:
+    name: Tests - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-18.04 ]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: 'mandrel-22.1.0.0-Final'
+          java-version: '17'
+      - name: Test
+        run: |
+          ./mvnw clean verify -Dnative
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            target/surefire-reports
