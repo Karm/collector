@@ -25,7 +25,11 @@ jobs:
         with:
           version: 'mandrel-22.1.0.0-Final'
           java-version: '17'
-      - name: Package and deploy
+      - name: Package
+        run: |
+          ./mvnw clean package -Dnative
+      - name: Deploy
+        if: success()
         env:
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
@@ -33,7 +37,8 @@ jobs:
           echo "$KNOWN_HOSTS" > ~/known_hosts
           eval $(ssh-agent)
           ssh-add - <<< "$SSH_KEY"
-          ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "ls"
+          scp -o UserKnownHostsFile=~/known_hosts ./target/collector-*-runner collector@${{ secrets.SERVER_ADDRESS }}:/home/collector/stage/collector.deploy
+          ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl restart stage-collector.foci.life"
       - uses: actions/upload-artifact@v3
         if: always()
         with:
