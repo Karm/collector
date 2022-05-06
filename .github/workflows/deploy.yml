@@ -1,0 +1,39 @@
+name: Deployment
+
+concurrency: stage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-18.04
+    environment: stage
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: 'mandrel-22.1.0.0-Final'
+          java-version: '17'
+      - name: Package and deploy
+        run: |
+          echo ${{ secrets.SSH_KNOWN_HOSTS }} >> ~/known_hosts
+          eval $(ssh-agent)
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "ls"
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-reports-${{ runner.os }}
+          path: |
+            target/surefire-reports
