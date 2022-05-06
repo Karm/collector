@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          fetch-depth: 0
       - uses: actions/cache@v2
         with:
           path: ~/.m2/repository
@@ -39,6 +39,7 @@ jobs:
           ssh-add - <<< "$SSH_KEY"
           scp -o UserKnownHostsFile=~/known_hosts ./target/collector-*-runner collector@${{ secrets.SERVER_ADDRESS }}:/home/collector/stage/collector.deploy
           ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl restart stage-collector.foci.life"
+          echo "Version $(git describe --tags --always) should be on https://stage-collector.foci.life/"
       - uses: actions/upload-artifact@v3
         if: always()
         with:
