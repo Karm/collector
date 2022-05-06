@@ -26,10 +26,13 @@ jobs:
           version: 'mandrel-22.1.0.0-Final'
           java-version: '17'
       - name: Package and deploy
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
-          echo ${{ secrets.SSH_KNOWN_HOSTS }} >> ~/known_hosts
+          echo "$KNOWN_HOSTS" > ~/known_hosts
           eval $(ssh-agent)
-          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          ssh-add - <<< "$SSH_KEY"
           ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "ls"
       - uses: actions/upload-artifact@v3
         if: always()
