@@ -1,15 +1,16 @@
 name: Tests
 
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
-     - 'LICENSE'
-     - '**.md'
+      - 'LICENSE'
+      - '**.md'
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [ opened, synchronize, reopened, ready_for_review ]
     paths-ignore:
-     - 'LICENSE'
-     - '**.md'
+      - 'LICENSE'
+      - '**.md'
 
 env:
   LANG: en_US.UTF-8
