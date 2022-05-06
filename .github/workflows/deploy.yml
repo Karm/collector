@@ -1,4 +1,4 @@
-name: Deployment
+name: https://stage-collector.foci.life/
 
 concurrency: stage
 
