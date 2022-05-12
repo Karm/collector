@@ -17,22 +17,25 @@
  * limitations under the License.
  *
  */
-package com.redhat.quarkus.mandrel.collector.access;
+package com.redhat.quarkus.mandrel.collector.access.endpoints;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 
 @Path("/api/admin")
 public class AdminResource {
 
-    // TODO make someone else admin
+    // TODO e.g. make someone else admin
     @GET
     @RolesAllowed("admin")
+    @Path("/me")
     @Produces(MediaType.TEXT_PLAIN)
-    public String adminResource() {
-        return "admin";
+    public String me(@Context SecurityContext securityContext) {
+        return securityContext.getUserPrincipal().getName();
     }
 }

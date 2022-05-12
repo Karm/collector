@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package com.redhat.quarkus.mandrel.collector.access;
+package com.redhat.quarkus.mandrel.collector.access.endpoints;
 
 import com.redhat.quarkus.mandrel.collector.access.model.User;
 import io.quarkus.elytron.security.common.BcryptUtil;
@@ -33,11 +33,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
-import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.hash;
-import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.randomStringHashed;
-import static com.redhat.quarkus.mandrel.collector.access.TokenResource.tokenPattern;
+import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.hash;
+import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.randomStringHashed;
+import static com.redhat.quarkus.mandrel.collector.access.endpoints.TokenResource.tokenPattern;
 
 /**
  * TODO: User last login filed is not populated....
@@ -125,9 +126,10 @@ public class PublicResource {
         }
         final String changePasswordToken = randomStringHashed();
         User.add(username, randomStringHashed(), changePasswordToken, "user", email);
+        // Sending email might fail (SMTP down etc.), the Exception thrown then rolls back the transaction of adding User.
         mailer.send(Mail.withText(email, signupEmailMessageSubject,
                         String.format(signupEmailMessageBody, username, changePasswordToken, url)))
-                .await().atMost(Duration.ofSeconds(10));
+                .await().atMost(Duration.ofSeconds(30));
         return Response.status(Response.Status.CREATED).entity(
                 String.format(signupSuccessUserCreated, signupEmailContact)).build();
     }

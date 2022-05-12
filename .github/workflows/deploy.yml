@@ -26,8 +26,9 @@ jobs:
           version: 'mandrel-22.1.0.0-Final'
           java-version: '17'
       - name: Package
+        # We don't want the native executable to be built wth test profile (e.g. including superfluous test resources)
         run: |
-          ./mvnw clean package -Dnative
+          ./mvnw clean verify -Pnative -Dquarkus-profile=test && ./mvnw package -DskipTests -Pnative
       - name: Deploy
         if: success()
         env:
