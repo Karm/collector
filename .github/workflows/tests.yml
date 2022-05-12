@@ -3,11 +3,15 @@ name: Tests
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths-ignore:
       - 'LICENSE'
       - '**.md'
   pull_request:
     types: [ opened, synchronize, reopened, ready_for_review ]
+    branches:
+      - main
     paths-ignore:
       - 'LICENSE'
       - '**.md'
@@ -39,7 +43,7 @@ jobs:
           java-version: '17'
       - name: Test
         run: |
-          ./mvnw clean verify -Dnative
+          ./mvnw clean verify -Pnative -Dquarkus-profile=test
       - uses: actions/upload-artifact@v3
         if: always()
         with:

@@ -17,8 +17,9 @@
  * limitations under the License.
  *
  */
-package com.redhat.quarkus.mandrel.collector.access;
+package com.redhat.quarkus.mandrel.collector.access.endpoints;
 
+import com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository;
 import com.redhat.quarkus.mandrel.collector.access.model.Token;
 import com.redhat.quarkus.mandrel.collector.access.model.User;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

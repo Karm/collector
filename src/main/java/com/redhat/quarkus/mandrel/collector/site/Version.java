@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package com.redhat.quarkus.mandrel.collector;
+package com.redhat.quarkus.mandrel.collector.site;
 
 import io.quarkus.logging.Log;
 

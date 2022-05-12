@@ -29,9 +29,8 @@ import io.quarkus.security.jpa.Username;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.security.NoSuchAlgorithmException;
 
-import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.hash;
+import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.hash;
 
 @Entity
 @Table(name = "user")
@@ -47,12 +46,11 @@ public class User extends PanacheEntity {
     @Column(unique = true)
     public String email;
     public Long lastLogin;
-    // One time. Cleartext sent to email
+    // One time. Cleartext sent to email.
     @Column(unique = true, length = 128)
     public String changePasswordTokenHash;
 
-    public static void add(String username, String password, String changePasswordToken, String role, String email)
-            throws NoSuchAlgorithmException {
+    public static void add(String username, String password, String changePasswordToken, String role, String email) {
         final User user = new User();
         user.username = username;
         user.password = BcryptUtil.bcryptHash(password);

@@ -54,7 +54,7 @@ The staging system is a place that could randomly get re-deployed, removed or th
    ```
    $ curl -s -b cookie.txt -c cookie.txt -X DELETE https://stage-collector.foci.life/api/tokens/delete/3dbe70428399c9174debe65597557fd30dc9dae1d4be961f3f723ad586eb81bb313342e1bcc140e74ff21e17d7b1196386fdb51bbb5db1034bea7dfd2c57f9a7 | jq
    {
-   "msg": "Deleted tokens: 1"
+   "message": "Deleted tokens: 1"
    }
    ```
 

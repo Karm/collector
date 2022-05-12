@@ -27,18 +27,31 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.QueryHint;
 import javax.persistence.Table;
-import java.security.NoSuchAlgorithmException;
 
-import static com.redhat.quarkus.mandrel.collector.access.TokenRepository.hash;
+import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.hash;
 
 /**
  * Basic DB backed homemade token. We might switch to JWT later if needed.
  */
-@Entity
+@Entity(name = "token")
 @Table(name = "token", indexes = {
         @Index(columnList = "tokenHash")
 })
+@NamedQuery(
+        name = "findByHash",
+        query = "SELECT t from token t WHERE t.tokenHash = ?1",
+        // TODO: Test whether caching does what it seems to do.
+        // So far, the DB is queried each time anyway :(
+        hints = {
+                @QueryHint(name = "org.hibernate.cacheable", value = "true"),
+                @QueryHint(name = "org.hibernate.cacheMode", value = "GET"),
+                @QueryHint(name = "org.hibernate.cacheRegion", value = "Token"),
+                @QueryHint(name = "org.hibernate.readOnly", value = "true")
+        }
+)
 public class Token extends PanacheEntity {
 
     @JsonbTransient
@@ -54,11 +67,7 @@ public class Token extends PanacheEntity {
         final Token token = new Token();
         token.user = user;
         token.rw = rw;
-        try {
-            token.tokenHash = hash(clearTextToken);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Cannot hash the token.", e);
-        }
+        token.tokenHash = hash(clearTextToken);
         token.lastUse = -1L;
         token.persist();
     }

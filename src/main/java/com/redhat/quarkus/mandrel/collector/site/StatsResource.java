@@ -19,8 +19,6 @@
  */
 package com.redhat.quarkus.mandrel.collector.site;
 
-import com.redhat.quarkus.mandrel.collector.Version;
-
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -29,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path("/public")
+@PermitAll
 public class StatsResource {
 
     @Inject
@@ -36,7 +35,6 @@ public class StatsResource {
 
     @GET
     @Path("/version")
-    @PermitAll
     @Produces(MediaType.TEXT_PLAIN)
     public String version() {
         return version.getGit();

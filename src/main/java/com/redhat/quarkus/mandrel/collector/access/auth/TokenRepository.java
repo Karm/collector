@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package com.redhat.quarkus.mandrel.collector.access;
+package com.redhat.quarkus.mandrel.collector.access.auth;
 
 import com.redhat.quarkus.mandrel.collector.access.model.Token;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -40,9 +40,13 @@ public class TokenRepository implements PanacheRepository<Token> {
         return find("user.username = ?1", username).list();
     }
 
-    public static String hash(String cleartext) throws NoSuchAlgorithmException {
-        return HexFormat.of().formatHex(
-                MessageDigest.getInstance("SHA-512").digest(cleartext.getBytes(StandardCharsets.US_ASCII)));
+    public static String hash(String cleartext) {
+        try {
+            return HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-512").digest(cleartext.getBytes(StandardCharsets.US_ASCII)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Cannot hash on this system.", e);
+        }
     }
 
     public static String randomStringHashed() throws NoSuchAlgorithmException {
