@@ -45,7 +45,7 @@ public class User extends PanacheEntity {
     public String role;
     @Column(unique = true)
     public String email;
-    public Long lastLogin;
+    public long lastLogin;
     // One time. Cleartext sent to email.
     @Column(unique = true, length = 128)
     public String changePasswordTokenHash;

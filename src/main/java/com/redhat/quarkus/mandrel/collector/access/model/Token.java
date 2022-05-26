@@ -61,6 +61,7 @@ public class Token extends PanacheEntity {
     public String rw;
     @Column(unique = true, length = 128)
     public String tokenHash;
+    // TODO: not used atm
     public Long lastUse;
 
     public static void add(User user, String rw, String clearTextToken) {
