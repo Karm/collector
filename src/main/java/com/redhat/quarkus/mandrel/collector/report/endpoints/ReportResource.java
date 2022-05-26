@@ -20,8 +20,10 @@
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
 import com.redhat.quarkus.mandrel.collector.report.model.Report;
+import com.redhat.quarkus.mandrel.collector.report.model.SimpleTimeAndSize;
 
 import javax.annotation.security.RolesAllowed;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,6 +37,61 @@ import javax.ws.rs.core.Response;
  */
 @Path("/api/report")
 public class ReportResource {
+
+    /**
+     * Expect JSON, e.g.
+     *
+     * <p>
+     * {
+     * "arch": "amd64",
+     * "buildTimeS": 180,
+     * "classes": 100000,
+     * "classesForJNIAccess": 50000,
+     * "classesForReflection": 50000,
+     * "classesReachable": 80000,
+     * "executableSizeMB": 55,
+     * "fields": 100000,
+     * "fieldsForJNIAccess": 50000,
+     * "fieldsForReflection": 50000,
+     * "fieldsReachable": 80000,
+     * "jdkVersion": "11.0.15+10",
+     * "mandrelVersion": "22.1.0.0-Final",
+     * "methods": 100000,
+     * "methodsForJNIAccess": 50000,
+     * "methodsForReflection": 50000,
+     * "methodsReachable": 80000,
+     * "nativeImageXmXMB": 8000,
+     * "numberOfGC": 123,
+     * "os": "Linux",
+     * "peakRSSMB": 6860,
+     * "quarkusVersion": "2.8.3.Final",
+     * "ramAvailableMB": 14336,
+     * "timeInGCS": 23,
+     * "testApp": "...some URL including commit hash?"
+     * }
+     *
+     * @param timeAndSize
+     * @return
+     */
+    @POST
+    @RolesAllowed("token_write")
+    @Path("/time-and-size")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Transactional
+    public Response timeAndSize(SimpleTimeAndSize timeAndSize) {
+        timeAndSize.persist();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @GET
+    @RolesAllowed("token_read")
+    @Path("/time-and-size")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response timeAndSize() {
+        // TODO: pagination
+        return Response.status(Response.Status.OK).entity(SimpleTimeAndSize.findAll().list()).build();
+    }
 
     @POST
     @RolesAllowed("token_write")
