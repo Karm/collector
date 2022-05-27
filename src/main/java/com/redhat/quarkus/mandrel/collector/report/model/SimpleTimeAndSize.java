@@ -39,6 +39,7 @@ public class SimpleTimeAndSize extends PanacheEntity {
     public String os;
     public String arch;
     public int ramAvailableMB;
+    public String runnerDescription;
 
     // Record
     @CreationTimestamp
