@@ -21,7 +21,6 @@ package com.redhat.quarkus.mandrel.collector.access.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
-import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,6 +29,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.QueryHint;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.hash;
 
@@ -54,7 +55,7 @@ import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.h
 )
 public class Token extends PanacheEntity {
 
-    @JsonbTransient
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     public User user;
     @Column(length = 2)
