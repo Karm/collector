@@ -33,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.hash;
