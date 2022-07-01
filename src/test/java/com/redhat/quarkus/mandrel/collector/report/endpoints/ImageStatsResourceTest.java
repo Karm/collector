@@ -37,13 +37,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redhat.quarkus.mandrel.collector.report.endpoints.StatsTestHelper.Mode;
 import com.redhat.quarkus.mandrel.collector.report.model.BuildPerformanceStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageSizeStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
@@ -54,7 +54,6 @@ import com.redhat.quarkus.mandrel.collector.report.model.TotalClassesStats;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
-import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import io.restassured.response.ResponseBody;
@@ -62,58 +61,21 @@ import io.restassured.response.ResponseBody;
 @QuarkusTest
 public class ImageStatsResourceTest {
 
-    private static final String BASE_URL = "/api/v1/image-stats";
-
-    static enum Mode {
-
-        READ("r"),
-        READ_WRITE("rw"),
-        WRITE("w");
-
-        private String mode;
-
-        private Mode(String mode) {
-            this.mode = mode;
-        }
-
-        String getMode() {
-            return mode;
-        }
-    }
+    
 
     @BeforeAll
     public static void setup() {
         RestAssured.defaultParser = Parser.JSON;
     }
 
-    public String login(Mode mode) {
-        final CookieFilter cookies = new CookieFilter();
-        // Login
-        RestAssured.given()
-                .filter(cookies)
-                .contentType(ContentType.URLENC)
-                .body("j_username=user&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_MOVED_TEMPORARILY);
-        // Authenticated request, only 'user' user can create tokens for now.
-        RestAssured.given()
-                .filter(cookies).when().get("/api/user/me").then()
-                .body(is("user")).statusCode(HttpStatus.SC_OK);
-
-        // Generate a new token
-        final String token = RestAssured.given()
-                .filter(cookies).when().post("/api/tokens/create/" + mode.getMode()).then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .body("message", containsString("Save the token safely. This is the only time"))
-                .extract().path("token");
-        return token;
-    }
+    
 
     @Test
     public void testListEmpty() {
-        String token = login(Mode.READ);
+        String token = StatsTestHelper.login(Mode.READ);
         given()
                 .when().contentType(ContentType.JSON)
-                .header("token", token).get(BASE_URL)
+                .header("token", token).get(StatsTestHelper.BASE_URL)
                 .then()
                 .statusCode(200)
                 .body(is("[]"));
@@ -121,14 +83,14 @@ public class ImageStatsResourceTest {
 
     @Test
     public void testAddRemove() throws Exception {
-        String rtoken = login(Mode.READ);
-        String wtoken = login(Mode.WRITE);
+        String rtoken = StatsTestHelper.login(Mode.READ);
+        String wtoken = StatsTestHelper.login(Mode.WRITE);
         ImageStats imageStats = createImageStat("hello");
         String json = toJsonString(imageStats);
         ResponseBody<?> body = given().contentType(ContentType.JSON)
                 .header("token", wtoken)
                 .body(json)
-                .when().post(BASE_URL).body();
+                .when().post(StatsTestHelper.BASE_URL).body();
         ImageStats result = body.as(ImageStats.class);
         assertEquals(imageStats.getGraalVersion(), result.getGraalVersion());
         assertEquals(imageStats.getImageName(), result.getImageName());
@@ -136,32 +98,32 @@ public class ImageStatsResourceTest {
 
         // Ensure we can listOne the result
         given().contentType(ContentType.JSON)
-                .header("token", rtoken).when().get(BASE_URL + "/" + result.getId()).then()
+                .header("token", rtoken).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
                 .statusCode(200).body(
                         containsString(imageStats.getImageName()),
                         containsString(imageStats.getGraalVersion()));
 
         // Delete the created resource again
-        given().contentType(ContentType.JSON).header("token", wtoken).when().delete(BASE_URL + "/" + result.getId()).then()
+        given().contentType(ContentType.JSON).header("token", wtoken).when().delete(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
                 .statusCode(200).body(
                         containsString(imageStats.getImageName()),
                         containsString(imageStats.getGraalVersion()));
 
         // Now list one should no longer find the resource
-        given().contentType(ContentType.JSON).header("token", rtoken).when().get(BASE_URL + "/" + result.getId()).then()
+        given().contentType(ContentType.JSON).header("token", rtoken).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
                 .statusCode(204)
                 .body(is(""));
     }
 
     @Test
     public void testAddTags() throws Exception {
-        String token = login(Mode.READ_WRITE);
+        String token = StatsTestHelper.login(Mode.READ_WRITE);
         String myTag = "some-run";
         List<Long> statIds = new ArrayList<>();
         ImageStats stats = createImageStat("foo-stat", myTag);
         String json = toJsonString(stats);
         ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(BASE_URL).body();
+                .when().post(StatsTestHelper.BASE_URL).body();
         ImageStats result = body.as(ImageStats.class);
         assertEquals(myTag, result.getTag());
         assertTrue(result.getId() > 0);
@@ -171,7 +133,7 @@ public class ImageStatsResourceTest {
         stats = createImageStat("other");
         json = toJsonString(stats);
         body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(BASE_URL + "?t=" + myTag).body();
+                .when().post(StatsTestHelper.BASE_URL + "?t=" + myTag).body();
         result = body.as(ImageStats.class);
         assertEquals(myTag, result.getTag());
         assertTrue(result.getId() > 0);
@@ -181,7 +143,7 @@ public class ImageStatsResourceTest {
         stats = createImageStat("third");
         json = toJsonString(stats);
         body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(BASE_URL).body();
+                .when().post(StatsTestHelper.BASE_URL).body();
         result = body.as(ImageStats.class);
         assertNull(result.getTag());
         assertTrue(result.getId() > 0);
@@ -189,7 +151,7 @@ public class ImageStatsResourceTest {
 
         // Find stats by tag
         ImageStats[] results = given()
-                .when().contentType(ContentType.JSON).header("token", token).get(BASE_URL + "/tag/" + myTag)
+                .when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/tag/" + myTag)
                 .body().as(ImageStats[].class);
         assertEquals(2, results.length);
         for (ImageStats s : results) {
@@ -200,12 +162,12 @@ public class ImageStatsResourceTest {
         // Delete them again
         String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
         ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
-                .delete(BASE_URL).body().as(ImageStats[].class);
+                .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
         assertEquals(3, deletedIds.length);
 
         // no more image stats
         given()
-                .when().header("token", token).get(BASE_URL)
+                .when().header("token", token).get(StatsTestHelper.BASE_URL)
                 .then()
                 .statusCode(200)
                 .body(is("[]"));
@@ -213,7 +175,7 @@ public class ImageStatsResourceTest {
 
     @Test
     public void testDistinctTags() throws Exception {
-        String token = login(Mode.READ_WRITE);
+        String token = StatsTestHelper.login(Mode.READ_WRITE);
         String[] myTags = new String[] {
                 "tag1", "tag2", "tag 3", null
         };
@@ -224,7 +186,7 @@ public class ImageStatsResourceTest {
             ImageStats s = createImageStat(statName, myTags[i]);
             String json = toJsonString(s);
             ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                    .when().post(BASE_URL).body();
+                    .when().post(StatsTestHelper.BASE_URL).body();
             ImageStats result = body.as(ImageStats.class);
             assertNotEquals(0, result.getId());
             stats.add(result);
@@ -232,7 +194,7 @@ public class ImageStatsResourceTest {
 
         // Find distinct tags
         String[] results = given()
-                .when().contentType(ContentType.JSON).header("token", token).get(BASE_URL + "/tags/distinct")
+                .when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/tags/distinct")
                 .body().as(String[].class);
         assertEquals(myTags.length, results.length);
         Set<String> resultsSet = new HashSet<>(Arrays.asList(results));
@@ -247,7 +209,7 @@ public class ImageStatsResourceTest {
         });
         String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
         ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
-                .delete(BASE_URL).body().as(ImageStats[].class);
+                .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
         assertEquals(4, deletedIds.length);
     }
 
