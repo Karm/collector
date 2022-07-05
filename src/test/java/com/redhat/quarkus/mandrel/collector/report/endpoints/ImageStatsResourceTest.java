@@ -212,6 +212,58 @@ public class ImageStatsResourceTest {
                 .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
         assertEquals(4, deletedIds.length);
     }
+    
+    @Test
+    public void testUpdateBuildTime() throws Exception {
+        long timeInMilis = 31700;
+        String updateJson = String.format("{ \"total_time\": %s }", timeInMilis);
+        doUpdateTest(updateJson, timeInMilis);
+    }
+    
+    private void doUpdateTest(String updateJSON, long expectedTimeMilis) throws Exception {
+        String token = StatsTestHelper.login(Mode.READ_WRITE);
+        ImageStats imageStats = createImageStat("build-time");
+        BuildPerformanceStats perfStats = imageStats.getResourceStats();
+        perfStats.setTotalTimeSeconds(-1);
+        String json = toJsonString(imageStats);
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
+                .when().post(StatsTestHelper.BASE_URL).body();
+        ImageStats result = body.as(ImageStats.class);
+        assertTrue(result.getId() > 0);
+        
+        // Update build time
+        body = given().contentType(ContentType.JSON).header("token", token).body(updateJSON)
+                .when().put(StatsTestHelper.BASE_URL + "/" + result.getId()).body();
+        ImageStats update = body.as(ImageStats.class);
+        double buildTimeSec = update.getResourceStats().getTotalTimeSeconds();
+        if (expectedTimeMilis > 0) {
+            // Avoid precise floating point comparison for this test
+            double expectedSecs = ((double)expectedTimeMilis) / 1000;
+            long expectedTime = (long)Math.floor(expectedSecs);
+            assertTrue(expectedTime < buildTimeSec);
+            assertTrue(expectedTime + 1 > buildTimeSec);
+        } else {
+            assertTrue(0 > buildTimeSec);
+        }
+        
+        // Delete the created resource again
+        given().contentType(ContentType.JSON).header("token", token).when().delete(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
+            .statusCode(200).body(
+                    containsString(imageStats.getImageName()),
+                    containsString(imageStats.getGraalVersion()));
+        
+        // Now list one should no longer find the resource
+        given().contentType(ContentType.JSON).header("token", token).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
+            .statusCode(204)
+            .body(is(""));
+    }
+    
+    @Test
+    public void testUpdateBuildTimeZero() throws Exception {
+        // total_time missing from JSON, thus no update expected.
+        String updateJson = "{ \"foo-bar\": 31700 }";
+        doUpdateTest(updateJson, -1);
+    }
 
     private ImageStats createImageStat(String name) {
         return createImageStat(name, null);
