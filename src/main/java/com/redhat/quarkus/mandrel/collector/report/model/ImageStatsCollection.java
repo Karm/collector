@@ -80,4 +80,18 @@ public class ImageStatsCollection {
         }
         return removed.toArray(new ImageStats[0]);
     }
+    
+    @Transactional
+    public ImageStats updateBuildTime(long id, long buildTimeMilis) {
+        ImageStats stat = getSingle(id);
+        if (stat == null) {
+            return null;
+        }
+        if (buildTimeMilis != 0) {
+            BuildPerformanceStats perfStats = stat.getResourceStats();
+            double buildTimeSec = ((double)buildTimeMilis) / 1000;
+            perfStats.setTotalTimeSeconds(buildTimeSec);
+        }
+        return stat;
+    }
 }

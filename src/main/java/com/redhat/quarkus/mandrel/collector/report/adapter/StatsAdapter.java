@@ -72,8 +72,8 @@ public class StatsAdapter {
         perfStats.setBuilderMachineMemTotal(graalStat.getResourceUsage().getMemory().getMachineTotal());
         perfStats.setNumCpuCores(graalStat.getResourceUsage().getCpu().getCoresTotal());
         perfStats.setPeakRSSBytes(graalStat.getResourceUsage().getMemory().getPeakRSS());
-        // Implement timing stats using '-H:+CollectImageBuildStatistics -H:ImageBuildStatisticsFile=foo.json'
-        // and parsing the resulting JSON for the value (GraalVM 22.2+)
+        // Timing information needs to be updated using the PUT endpoint
+        // of api/v1/image-stats/<id>
         perfStats.setTotalTimeSeconds(-1);
         stats.setResourceStats(perfStats);
         return stats;

@@ -27,12 +27,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
@@ -42,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
+import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
 
 @ApplicationScoped
 @Path("api/v1/image-stats")
@@ -93,6 +96,17 @@ public class ImageStatsResource {
             stat.setTag(tag);
         }
         return collection.add(stat);
+    }
+    
+    @RolesAllowed("token_write")
+    @PUT
+    @Path("{statId:\\d+}")
+    public ImageStats updateBuildTime(@PathParam("statId") Long statId, GraalBuildInfo info) {
+        ImageStats stat = collection.updateBuildTime(statId, info.getTotalBuildTimeMilis());
+        if (stat == null) {
+            throw new WebApplicationException("Stat with id " + statId + " not found", Status.NOT_FOUND);
+        }
+        return stat;
     }
 
     @RolesAllowed("token_write")
