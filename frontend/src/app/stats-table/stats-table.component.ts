@@ -7,6 +7,7 @@ import { AfterViewInit, Component, Inject, LOCALE_ID, OnInit, ViewChild } from '
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { formatNumber } from '@angular/common';
+import { AuthenticationService } from '../auth-service/auth.service';
 
 class ImageStatsSubset {
   id: number;
@@ -101,7 +102,8 @@ export class StatsTableComponent implements OnInit, AfterViewInit {
   constructor(private _http: HttpClient,
               private _route: ActivatedRoute,
               private _router: Router,
-              @Inject(LOCALE_ID) public _locale: string) {
+              @Inject(LOCALE_ID) public _locale: string,
+	      private _auth: AuthenticationService) {
     this.paginator = null;
   }
 
@@ -112,11 +114,20 @@ export class StatsTableComponent implements OnInit, AfterViewInit {
   paginator: MatPaginator | null;
 
   private getStatsFromApi(t: string | undefined) {
+    let headers = new HttpHeaders();
+    let myHeaders: HttpHeaders;
+    let tok: string | null;
+    if (this._auth.token() != null) {
+      tok = this._auth.token();
+      myHeaders = headers.set("token", tok ? tok : "");
+    } else {
+      myHeaders = headers;
+    }
     if (!!t) {
       // get stats by tag
-      return this._http.get<[]>('/api/v1/image-stats/tag/' + encodeURIComponent(t));
+      return this._http.get<[]>('/api/v1/image-stats/tag/' + encodeURIComponent(t), { 'headers': myHeaders });
     } else {
-      return this._http.get<[]>('/api/v1/image-stats');
+      return this._http.get<[]>('/api/v1/image-stats', { 'headers': myHeaders });
     }
   }
 

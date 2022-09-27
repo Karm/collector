@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import { HttpResponse, HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -10,28 +11,42 @@ export class AuthenticationService {
   fakeUsername: string = "mandrel";
   fakePassword: string = "123qwe";
 
-  constructor() { }
+  constructor(private _http: HttpClient,
+	      private _router: Router) { }
 
-  login(username: string, password: string): Observable<any> {
-    // Mock a successful call to an API server.
-    if (username == this.fakeUsername && password == this.fakePassword) {
-      sessionStorage.setItem("token", "my-super-secret-token-from-server");
-      return of(new HttpResponse({ status: 200 }));
-    } else {
-      return of(new HttpResponse({ status: 401 }));
-    }
+  login(username: string, password: string) {
+    const formData = new FormData();
+    formData.append('j_username', username);
+    formData.append('j_password', password);
+    this._http.post('/j_security_check', formData)
+               .subscribe( res => { this._http.post<Token>('/api/tokens/create/r', null)
+	                                 .subscribe( data =>  {
+						   sessionStorage.setItem("token", data.token);
+				                   this._router.navigateByUrl("/");
+					 }); },
+                           err => { console.log("j_security_check login failed " + err.status);
+				    this._router.navigateByUrl("/login?error");
+			           });
   }
 
   logout(): Observable<any> {
     sessionStorage.removeItem("token");
-    console.log(sessionStorage.getItem("token"));
     return of(new HttpResponse({ status: 200 }));
   }
 
   isUserLoggedIn(): boolean {
-    if (sessionStorage.getItem("token") != null) {
+    if (this.token() != null) {
       return true;
     }
     return false;
   }
+
+  token(): string | null {
+    return sessionStorage.getItem("token");
+  }
+}
+
+interface Token {
+  token: string;
+  message: string;
 }

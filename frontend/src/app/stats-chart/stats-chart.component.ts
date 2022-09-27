@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ChartData, ChartEvent, ChartType } from 'chart.js';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
+import { AuthenticationService } from '../auth-service/auth.service';
 
 interface ImageStats {
   id: number;
@@ -61,7 +62,9 @@ export class StatsChartComponent implements OnInit {
   img_name: string = "N/A";
   stat : ImageStats | undefined;
 
-  constructor(private _http: HttpClient, private _route: ActivatedRoute) {
+  constructor(private _http: HttpClient,
+              private _route: ActivatedRoute,
+              private _auth: AuthenticationService) {
   }
 
   // Doughnut
@@ -89,7 +92,16 @@ export class StatsChartComponent implements OnInit {
   }
 
   getStatsFromApi(id: number) {
-    return this._http.get<ImageStats>('/api/v1/image-stats/' + id);
+    let headers = new HttpHeaders();
+    let myHeaders: HttpHeaders;
+    let tok: string | null;
+    if (this._auth.token() != null) {
+      tok = this._auth.token();
+      myHeaders = headers.set("token", tok ? tok : "");
+    } else {
+      myHeaders = headers;
+    }
+    return this._http.get<ImageStats>('/api/v1/image-stats/' + id, { 'headers': myHeaders });
   }
 
   ngOnInit(): void {
