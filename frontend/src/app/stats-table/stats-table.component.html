@@ -1,0 +1,99 @@
+<div>
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+
+  <!--- Note that these columns can be defined in any order.
+        The actual rendered columns are set as a property on the row definition" -->
+
+  <!-- Name Column -->
+  <ng-container matColumnDef="img_name">
+    <th mat-header-cell *matHeaderCellDef matTooltip="Image name"> Image name </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Image name"> {{element.img_name}} </td>
+  </ng-container>
+
+  <!-- Total classes column -->
+  <ng-container matColumnDef="total_classes">
+    <th mat-header-cell *matHeaderCellDef matTooltip="Total classes"> TC </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Total classes"> {{element.total_classes}} </td>
+  </ng-container>
+
+  <!-- Reachable classes column -->
+  <ng-container matColumnDef="reachable_classes">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header matTooltip="Reachable classes"> RC </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Reachable classes"> {{element.reachable_classes}} </td>
+  </ng-container>
+
+  <!-- Reachable methods column -->
+  <ng-container matColumnDef="reachable_methods">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header matTooltip="Reachable methods"> RM </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Reachable methods"> {{element.reachable_methods}} </td>
+  </ng-container>
+
+  <!-- Reachable fields column -->
+  <ng-container matColumnDef="reachable_fields">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header matTooltip="Reachable fields"> RF </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Reachable fields"> {{element.reachable_fields}} </td>
+  </ng-container>
+
+  <!-- Total/Reachable Percentage -->
+  <ng-container matColumnDef="reachable_percent_cl">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header matTooltip="% of total classes reachable"> T/R C% </th>
+    <td mat-cell *matCellDef="let element" matTooltip="{{element.reachable_percent_cl.formatted_value}}% of {{element.total_classes}} total classes reachable"> {{element.reachable_percent_cl.formatted_value}}% </td>
+  </ng-container>
+
+  <!-- Reflection classes column -->
+  <ng-container matColumnDef="reflection_classes">
+    <th mat-header-cell *matHeaderCellDef matTooltip="Reflection classes"> RfC </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Reflection classes"> {{element.reflection_classes}} </td>
+  </ng-container>
+
+  <!-- Reflection methods column -->
+  <ng-container matColumnDef="reflection_methods">
+    <th mat-header-cell *matHeaderCellDef matTooltip="Reflection methods"> RfM </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Reflection methods"> {{element.reflection_methods}} </td>
+  </ng-container>
+
+  <!-- Reflection fields column -->
+  <ng-container matColumnDef="reflection_fields">
+    <th mat-header-cell *matHeaderCellDef matTooltip="Reflection fields"> RfF </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Reflection fields"> {{element.reflection_fields}} </td>
+  </ng-container>
+
+  <!-- JNI classes column -->
+  <ng-container matColumnDef="jni_classes">
+    <th mat-header-cell *matHeaderCellDef matTooltip="JNI classes"> JC </th>
+    <td mat-cell *matCellDef="let element" matTooltip="JNI classes"> {{element.jni_classes}} </td>
+  </ng-container>
+
+  <!-- JNI methods column -->
+  <ng-container matColumnDef="jni_methods">
+    <th mat-header-cell *matHeaderCellDef matTooltip="JNI methods"> JM </th>
+    <td mat-cell *matCellDef="let element" matTooltip="JNI methods"> {{element.jni_methods}} </td>
+  </ng-container>
+
+  <!-- JNI fields column -->
+  <ng-container matColumnDef="jni_fields">
+    <th mat-header-cell *matHeaderCellDef matTooltip="JNI fields"> JF </th>
+    <td mat-cell *matCellDef="let element" matTooltip="JNI fields"> {{element.jni_fields}} </td>
+  </ng-container>
+
+  <!-- Created at column -->
+  <ng-container matColumnDef="created_at">
+    <th mat-header-cell *matHeaderCellDef> Created at </th>
+    <td mat-cell *matCellDef="let element"> {{element.created_at | date:'medium'}} </td>
+  </ng-container>
+
+  <!-- image size column -->
+  <ng-container matColumnDef="image_size">
+    <th mat-header-cell *matHeaderCellDef matTooltip="Image Size" mat-sort-header class="right"> Size </th>
+    <td mat-cell *matCellDef="let element" matTooltip="Image Size" class="right"> {{element.image_size.formatted_value}} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+  <tr mat-row (click)="rowClicked(row)" *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+
+<mat-paginator [pageSizeOptions]="[15, 20, 30]"
+                showFirstLastButtons
+                aria-label="Select page of image stats">
+</mat-paginator>
+</div>

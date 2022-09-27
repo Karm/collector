@@ -1,0 +1,6 @@
+<mat-form-field appearance="fill">
+  <mat-label>Select a tag for tabular view</mat-label>
+  <mat-select [(value)]="selected_tag" (selectionChange)="showStatsTable($event)">
+    <mat-option *ngFor="let tag of tags" [value]="tag"> {{tag}} </mat-option>
+  </mat-select>
+</mat-form-field>

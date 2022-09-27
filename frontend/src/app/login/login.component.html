@@ -1,0 +1,25 @@
+<div>
+<h1>Login:</h1>
+<form [formGroup]="loginForm">
+    <input type="text" placeholder="Username" formControlName="username">
+    <br>
+    <input type="password" placeholder="Password" formControlName="password">
+    <br>
+    <button type="submit" (click)="login()" [disabled]="!loginForm.valid">Log In</button>
+</form>
+<div *ngIf="(username?.invalid && (username?.dirty || username?.touched)) || (password?.invalid && (password?.dirty || password?.touched))"
+    class="alert">
+
+  <div *ngIf="username?.errors?.['required']">
+    Username is required.
+  </div>
+  <div *ngIf="password?.errors?.['required']">
+    Password must be at least 4 characters long
+  </div>
+</div>
+<div *ngIf="error"
+    class="alert">
+  <div> 
+	  {{error}}
+  </div>
+</div>

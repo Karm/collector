@@ -1,0 +1,96 @@
+[
+  {
+    "id": 1,
+    "created_at": "2022-04-25T12:43:47.341+00:00",
+    "tag": null,
+    "img_name": "libnative-image-agent",
+    "generator_version": "GraalVM 22.2.0-dev Java 17 Mandrel Distribution",
+    "image_size_stats": {
+      "id": 1,
+      "total_bytes": 24105390,
+      "code_cache_bytes": 9320032,
+      "heap_bytes": 12701696,
+      "other_bytes": 2083662,
+      "debuginfo_bytes": 0
+    },
+    "jni_classes_stats": {
+      "id": 1,
+      "classes": 59,
+      "fields": 59,
+      "methods": 52
+    },
+    "reflection_stats": {
+      "id": 3,
+      "classes": 256,
+      "fields": 0,
+      "methods": 738
+    },
+    "build_perf_stats": {
+      "id": 1,
+      "total_build_time_sec": 57.880569592,
+      "num_cpu_cores": 8,
+      "total_machine_memory": 33254133760,
+      "peak_rss_bytes": 5571211264,
+      "cpu_load": 6.655172413793103
+    },
+    "total_classes_stats": {
+      "id": 4,
+      "classes": 5671,
+      "fields": 10505,
+      "methods": 41905
+    },
+    "reachability_stats": {
+      "id": 2,
+      "classes": 4653,
+      "fields": 5807,
+      "methods": 21808
+    }
+  },
+  {
+    "id": 1,
+    "created_at": "2022-04-26T12:43:47.341+00:00",
+    "tag": "foo-bar",
+    "img_name": "hello",
+    "generator_version": "GraalVM 22.2.0-dev Java 17 Mandrel Distribution",
+    "image_size_stats": {
+      "id": 1,
+      "total_bytes": 24105390,
+      "code_cache_bytes": 9320032,
+      "heap_bytes": 12701696,
+      "other_bytes": 2083662,
+      "debuginfo_bytes": 0
+    },
+    "jni_classes_stats": {
+      "id": 1,
+      "classes": 59,
+      "fields": 59,
+      "methods": 52
+    },
+    "reflection_stats": {
+      "id": 3,
+      "classes": 256,
+      "fields": 0,
+      "methods": 738
+    },
+    "build_perf_stats": {
+      "id": 1,
+      "total_build_time_sec": 57.880569592,
+      "num_cpu_cores": 8,
+      "total_machine_memory": 33254133760,
+      "peak_rss_bytes": 5571211264,
+      "cpu_load": 6.655172413793103
+    },
+    "total_classes_stats": {
+      "id": 4,
+      "classes": 5671,
+      "fields": 10505,
+      "methods": 41905
+    },
+    "reachability_stats": {
+      "id": 2,
+      "classes": 4653,
+      "fields": 5807,
+      "methods": 21808
+    }
+  }
+]

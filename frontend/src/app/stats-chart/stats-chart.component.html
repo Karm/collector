@@ -1,0 +1,9 @@
+<h1>Image Size Chart</h1>
+<div>Image name: {{img_name }}, Total Size: {{total_size | number}} bytes</div>
+<br/>
+<div id="chart_container">
+<canvas baseChart
+    [data]="doughnutChartData"
+    [type]="doughnutChartType">
+</canvas>
+</div>
