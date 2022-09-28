@@ -7,9 +7,13 @@ on:
     branches:
       - main
 
+env:
+  LANG: en_US.UTF-8
+  BUILDER_IMAGE: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+
 jobs:
   deployment:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     environment: stage
     steps:
       - uses: actions/checkout@v2
@@ -21,14 +25,25 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: graalvm/setup-graalvm@v1
+      - uses: actions/setup-node@v3
         with:
-          version: 'mandrel-22.1.0.0-Final'
-          java-version: '17'
+          node-version: '18.1.0'
+      - name: Setup yarn
+        run: npm install -g yarn@1.22.17
+      - name: Install JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 17
       - name: Package
         # We don't want the native executable to be built wth test profile (e.g. including superfluous test resources)
-        run: |
-          ./mvnw clean verify -Pnative -Dquarkus-profile=test && ./mvnw package -DskipTests -Pnative
+        run: >-
+          ./mvnw clean verify -Pnative -Dquarkus-profile=test
+          -Dquarkus.native.container-build=true
+          -Dquarkus.native.builder-image=${BUILDER_IMAGE} &&
+          ./mvnw package -DskipTests -Pnative
+          -Dquarkus.native.container-build=true
+          -Dquarkus.native.builder-image=${BUILDER_IMAGE}
       - name: Deploy
         if: success()
         env:
