@@ -37,6 +37,11 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.1.0'
+      - name: Setup yarn
+        run: npm install -g yarn@1.22.17
       - uses: graalvm/setup-graalvm@v1
         with:
           version: 'mandrel-22.1.0.0-Final'
