@@ -84,3 +84,55 @@ And that shows on the web too:
 $ curl -s https://stage-collector.foci.life/public/version
 1.0.0-6-g7d663ea
 ```
+
+# Angular UI development
+
+## Prerequisites
+
+Be sure you've got at least node/yarn versions mentioned in `pom.xml` installed on your system.
+
+## Development
+
+The easiest way to develop the UI is using `yarn proxy` from the `frontend` directory once the
+Quarkus back-end is up and running:
+
+```
+$ ./mvnw -Dui.deps -Dui.dev clean quarkus:dev
+```
+
+In another terminal do:
+
+```
+$ cd frontend
+$ yarn proxy
+yarn run v1.22.10
+$ ng serve --proxy-config proxy.conf.json
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files   | Names         |  Raw Size
+vendor.js             | vendor        |   3.47 MB | 
+polyfills.js          | polyfills     | 294.79 kB | 
+styles.css, styles.js | styles        | 251.74 kB | 
+main.js               | main          |  36.31 kB | 
+runtime.js            | runtime       |   6.51 kB | 
+
+                      | Initial Total |   4.04 MB
+
+Build at: 2022-05-11T15:52:35.414Z - Hash: 687102ba1903194d - Time: 4589ms
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+✔ Compiled successfully.
+```
+
+Then open the browser at http://localhost:4200/
+
+## Compile for Deployment
+
+Steps are similar to compiling the development version, but using `-Dui` (over `-Dui.dev`) instead.
+
+```
+$ ./mvnw -Dui.deps -Dui clean package
+```
+
