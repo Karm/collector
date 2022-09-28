@@ -17,6 +17,7 @@ import { StatsTableComponent } from './stats-table/stats-table.component';
 import { TagSelectorComponent } from './tag-selector/tag-selector.component';
 import { StatsChartComponent } from './stats-chart/stats-chart.component';
 import { LoginComponent } from './login/login.component';
+import { TopNavComponent } from './top-nav/top-nav.component';
 import {
   AuthGuardService as AuthGuard
 } from './auth-guard/auth-guard.service';
@@ -29,7 +30,8 @@ import {
     StatsTableComponent,
     TagSelectorComponent,
     StatsChartComponent,
-    LoginComponent
+    LoginComponent,
+    TopNavComponent
   ],
   imports: [
     BrowserModule,
