@@ -50,7 +50,7 @@ jobs:
           java-version: 17
       - name: Test
         run: >-
-          ./mvnw clean verify -Pnative -Dquarkus-profile=test
+          ./mvnw -Dui.deps -Dui clean verify -Pnative -Dquarkus-profile=test
           -Dquarkus.native.container-build=true
           -Dquarkus.native.builder-image=${BUILDER_IMAGE}
       - uses: actions/upload-artifact@v3
