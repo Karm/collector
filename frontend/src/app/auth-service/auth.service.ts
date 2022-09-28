@@ -8,9 +8,6 @@ import { Router } from '@angular/router';
 })
 export class AuthenticationService {
 
-  fakeUsername: string = "mandrel";
-  fakePassword: string = "123qwe";
-
   constructor(private _http: HttpClient,
 	      private _router: Router) { }
 
@@ -19,14 +16,21 @@ export class AuthenticationService {
     formData.append('j_username', username);
     formData.append('j_password', password);
     this._http.post('/j_security_check', formData)
-               .subscribe( res => { this._http.post<Token>('/api/tokens/create/r', null)
+               .subscribe( res => this.handleJSecurityResp(),
+                           err => this.handleAuthFail(err));
+  }
+  
+  handleJSecurityResp() {
+    this._http.post<Token>('/api/tokens/create/r', null)
 	                                 .subscribe( data =>  {
 						   sessionStorage.setItem("token", data.token);
 				                   this._router.navigateByUrl("/");
-					 }); },
-                           err => { console.log("j_security_check login failed " + err.status);
-				    this._router.navigateByUrl("/login?error");
-			           });
+					 });
+  }
+
+  handleAuthFail(resp: HttpResponse<any>) {
+    // j_security_check didn't work. Redirect with login fail.
+    this._router.navigateByUrl("/login?error=Login failed");
   }
 
   logout(): Observable<any> {

@@ -10,16 +10,11 @@
 <div *ngIf="(username?.invalid && (username?.dirty || username?.touched)) || (password?.invalid && (password?.dirty || password?.touched))"
     class="alert">
 
-  <div *ngIf="username?.errors?.['required']">
-    Username is required.
-  </div>
-  <div *ngIf="password?.errors?.['required']">
-    Password must be at least 4 characters long
+  <div *ngIf="!loginForm.valid">
+    Username or Password invalid.
   </div>
 </div>
-<div *ngIf="error"
-    class="alert">
-  <div> 
+  <div *ngIf="error"
+     class="alert">
 	  {{error}}
   </div>
-</div>
