@@ -53,7 +53,7 @@ public class TokenTest {
                 .filter(cookies)
                 .contentType(ContentType.URLENC)
                 .body("j_username=user&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_MOVED_TEMPORARILY);
+                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
 
         // Generate a new read-only token
         final String token = RestAssured.given()

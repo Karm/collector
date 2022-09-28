@@ -17,28 +17,17 @@
  * limitations under the License.
  *
  */
-package com.redhat.quarkus.mandrel.collector.site;
+package com.redhat.quarkus.mandrel.collector.access.model;
 
-import com.redhat.quarkus.mandrel.collector.access.model.AppVersion;
-import javax.annotation.security.PermitAll;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+public class AppVersion {
 
-@Path("/public")
-@PermitAll
-public class StatsResource {
+    public String version;
 
-    @Inject
-    Version version;
-
-    @GET
-    @Path("/version")
-    @Produces(MediaType.APPLICATION_JSON)
-    public AppVersion version() {
-        return new AppVersion(version.getGit().trim());
+    public AppVersion(String v) {
+        this.version = v;
     }
 
+    public AppVersion() {
+        this(null);
+    }
 }

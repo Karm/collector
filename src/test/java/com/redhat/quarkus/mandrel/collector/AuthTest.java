@@ -55,7 +55,7 @@ public class AuthTest {
                 .filter(cookies)
                 .contentType(ContentType.URLENC)
                 .body("j_username=admin&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_MOVED_TEMPORARILY);
+                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
         // Authenticated request, authorized with the role admin
         RestAssured.given()
                 .filter(cookies).when().get("/api/admin/me").then()
@@ -91,7 +91,7 @@ public class AuthTest {
                 .filter(cookies)
                 .contentType(ContentType.URLENC)
                 .body("j_username=" + username + "&j_password=" + newPassword)
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_MOVED_TEMPORARILY);
+                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
 
         // Try to do something only a logged-in user can do
         RestAssured.given()
