@@ -1,0 +1,12 @@
+<div id="top">
+<span id="top_left">
+    Navigation: <a [routerLink]="['/']">Home</a>
+    <span *ngIf="currPath">
+      &gt;&gt; {{currPath | titlecase }}
+    </span>
+</span>
+<span id="top_right">
+  <a [routerLink]="['/logout']" (click)="logout()">Logout</a>
+</span>
+</div>
+<div>&nbsp;</div>

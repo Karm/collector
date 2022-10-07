@@ -57,7 +57,7 @@ public class StatsTestHelper {
                 .filter(cookies)
                 .contentType(ContentType.URLENC)
                 .body("j_username=user&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_MOVED_TEMPORARILY);
+                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
         // Authenticated request, only 'user' user can create tokens for now.
         RestAssured.given()
                 .filter(cookies).when().get("/api/user/me").then()

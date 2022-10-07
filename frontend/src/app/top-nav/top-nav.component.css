@@ -1,0 +1,14 @@
+div#top {
+    width: 100%;
+}
+
+span#top_left {
+    width: 50%;
+    display: inline-block;
+}
+
+span#top_right {
+    width: 50%;
+    display: inline-block;
+    text-align: right;
+}

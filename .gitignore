@@ -39,3 +39,10 @@ nb-configuration.xml
 .env
 cookie.txt
 *.log
+
+# Frontend (Angular)
+frontend/dist
+frontend/.angular/cache
+frontend/node_modules
+frontend/node
+frontend/yarn-error.log

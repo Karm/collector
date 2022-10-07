@@ -1,0 +1,25 @@
+<h3>Collector service</h3>
+<div>
+  Version: {{version}}
+</div>
+<hr/>
+<div>
+<h1>Login:</h1>
+<form [formGroup]="loginForm">
+    <input type="text" placeholder="Username" formControlName="username">
+    <br>
+    <input type="password" placeholder="Password" formControlName="password">
+    <br>
+    <button type="submit" (click)="login()" [disabled]="!loginForm.valid">Log In</button>
+</form>
+<div *ngIf="(username?.invalid && (username?.dirty || username?.touched)) || (password?.invalid && (password?.dirty || password?.touched))"
+    class="alert">
+
+  <div *ngIf="!loginForm.valid">
+    Username or Password invalid.
+  </div>
+</div>
+  <div *ngIf="error"
+     class="alert">
+	  {{error}}
+  </div>

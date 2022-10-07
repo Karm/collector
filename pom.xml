@@ -19,6 +19,9 @@
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Versions for added plugins -->
+        <version.frontend-maven-plugin>1.7.5</version.frontend-maven-plugin>
+        <version.resources-plugin>3.1.0</version.resources-plugin>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -129,6 +132,41 @@
                     <configFile>${project.basedir}/ide/eclipse-format.xml</configFile>
                 </configuration>
             </plugin>
+            <!-- ADDED PLUGINS -->
+            <!-- Used to run the angular build -->
+            <plugin>
+              <groupId>com.github.eirslett</groupId>
+              <artifactId>frontend-maven-plugin</artifactId>
+              <!-- Use the latest released version:
+                https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+              <version>${version.frontend-maven-plugin}</version>
+              <configuration>
+                <workingDirectory>frontend</workingDirectory>
+              </configuration>
+            </plugin>
+            <!-- Copy the built frontend to the directory used by Quarkus -->
+            <plugin>
+              <artifactId>maven-resources-plugin</artifactId>
+              <version>${version.resources-plugin}</version>
+              <executions>
+                <execution>
+                  <id>copy-resources</id>
+                  <phase>process-resources</phase>
+                  <goals>
+                    <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                    <outputDirectory>${basedir}/target/classes/META-INF/resources/</outputDirectory>
+                    <resources>
+                      <resource>
+                        <directory>frontend/dist/frontend</directory>
+                        <filtering>false</filtering>
+                      </resource>
+                    </resources>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -168,6 +206,126 @@
             <properties>
                 <quarkus.package.type>native</quarkus.package.type>
             </properties>
+        </profile>
+        <profile>
+          <!--
+            Installs node and yarn in the frontend/node and frontend/node_modules folders respectively.
+            Run 'mvn package -Dui.deps':
+              * the first time you have checked out the source.
+              * whenever the dependencies have been changed in package.json (delete the frontend/node_modules folder first!)
+          -->
+          <id>Install node and yarn</id>
+          <activation>
+            <property>
+              <name>ui.deps</name>
+            </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <!--
+                      Install node and yarn for the plugin to have a copy.
+                    -->
+                    <id>install node and yarn</id>
+                    <goals>
+                      <goal>install-node-and-yarn</goal>
+                    </goals>
+                    <configuration>
+                      <!-- Make sure these match the version you installed on your system -->
+                      <nodeVersion>v18.1.0</nodeVersion>
+                      <yarnVersion>v1.22.17</yarnVersion>
+                    </configuration>
+                  </execution>
+                  <execution>
+                    <!--
+                      Run yarn install when having updated dependencies
+                      -->
+                    <id>yarn install</id>
+                    <goals>
+                      <goal>yarn</goal>
+                    </goals>
+                    <!-- Optional configuration which provides for running any yarn command -->
+                    <configuration>
+                      <arguments>install</arguments>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
+        <profile>
+          <!--
+            Since building the ui is slightly time-consuming, and not all changes necessarily affect the ui, turn on
+            building the ui explicitly by running 'mvn package -Dui.dev'.
+            
+            This is faster than the production build as it does not perform all optimisations at build time.
+          -->
+          <id>Build the UI</id>
+          <activation>
+            <property>
+              <name>ui.dev</name>
+            </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>yarn run build</id>
+                    <goals>
+                      <goal>yarn</goal>
+                    </goals>
+                    <configuration>
+                      <arguments>run build --output-hashing=all</arguments>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
+        <profile>
+          <!--
+            !!!! USE THIS FOR PRODUCTION BUILDS - IT RESULTS IN A MUCH SMALLER SIZE!!!!
+
+            Since building the ui this way is very time-consuming, and not all changes necessarily affect the ui, turn on
+            building the ui explicitly by running 'mvn clean package -Dui'
+          -->
+          <id>Build the UI with AOT</id>
+          <activation>
+            <property>
+              <name>ui</name>
+            </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <!--
+                      Uses webpack to bundle the application as set up in package.json
+                    -->
+                    <id>yarn run build</id>
+                    <goals>
+                      <goal>yarn</goal>
+                    </goals>
+                    <configuration>
+                      <arguments>run build --output-hashing=all --prod --aot --configuration=production</arguments>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
         </profile>
     </profiles>
 </project>
