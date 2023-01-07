@@ -9,7 +9,7 @@ on:
 
 env:
   LANG: en_US.UTF-8
-  BUILDER_IMAGE: quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17
+  BUILDER_IMAGE: quay.io/quarkus/ubi-quarkus-mandrel:22.3-java17
 
 jobs:
   deployment:
