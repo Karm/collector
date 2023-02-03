@@ -33,6 +33,7 @@ public class PerfStatStats extends PanacheEntity {
     @CreationTimestamp
     public LocalDateTime created;
     public String testApp;
+    public String testMethod;
 
     // Perf
     public String file;
@@ -54,6 +55,8 @@ public class PerfStatStats extends PanacheEntity {
     // Aux
     public long rssKb = -1;
     public long executableSizeKb = -1;
+    public int requestsExecuted = -1;
+    public long timeToFirstOKRequestMs = -1;
 
     // Settings
     public long maxHeapSizeMB = -1;
