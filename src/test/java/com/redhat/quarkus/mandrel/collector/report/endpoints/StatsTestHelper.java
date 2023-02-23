@@ -23,7 +23,16 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.http.HttpStatus;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
 
 import io.restassured.RestAssured;
 import io.restassured.filter.cookie.CookieFilter;
@@ -70,5 +79,40 @@ public class StatsTestHelper {
                 .body("message", containsString("Save the token safely. This is the only time"))
                 .extract().path("token");
         return token;
+    }
+    
+    public static GraalStats parseV090Stat() {
+        return parseJson(getV090StatString());
+    }
+    
+    public static GraalStats parseV091Stat() {
+        return parseJson(getV091StatString());
+    }
+    
+    private static GraalStats parseJson(String raw) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            GraalStats stat = mapper.readValue(raw, GraalStats.class);
+            return stat;
+        } catch (JsonProcessingException e) {
+            throw new AssertionError(e);
+        }
+    }
+    
+    public static String getV090StatString() {
+        return getStatString("build-stats-0.9.0.json");
+    }
+    
+    public static String getV091StatString() {
+        return getStatString("build-stats-0.9.1.json");
+    }
+    
+    private static String getStatString(String name) {
+        try (InputStream is = StatsTestHelper.class.getResourceAsStream("/" + name)) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new AssertionError("Error reading file: " + name, e);
+        }
     }
 }

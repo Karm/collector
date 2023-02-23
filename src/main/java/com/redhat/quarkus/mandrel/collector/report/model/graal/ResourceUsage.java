@@ -20,12 +20,27 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model.graal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ResourceUsage {
 
+    private static final double UNSET = -1;
+    @JsonProperty("total_secs")
+    private double totalTimeSecs;
     private MemoryInfo memory;
     private GCInfo gc;
     private CPUInfo cpu;
     
+    public ResourceUsage() {
+        this.totalTimeSecs = UNSET;
+    }
+    
+    public double getTotalTimeSecs() {
+        return totalTimeSecs;
+    }
+    public void setTotalTimeSecs(double totalTimeSecs) {
+        this.totalTimeSecs = totalTimeSecs;
+    }
     public MemoryInfo getMemory() {
         return memory;
     }

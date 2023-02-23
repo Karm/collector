@@ -24,18 +24,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AnalysisResults {
 
+    // 0.9.0 schema used 'classes'
     @JsonProperty("classes")
     private ExecutableStats classStats;
+    // 0.9.1 schema uses 'types'
+    @JsonProperty("types")
+    private ExecutableStats typeStats;
     @JsonProperty("fields")
     private ExecutableStats fieldStats;
     @JsonProperty("methods")
     private ExecutableStats methodStats;
     
     public ExecutableStats getClassStats() {
+        // Prefer newer type stats over older class stats
+        if (typeStats != null) {
+            return typeStats;
+        }
         return classStats;
     }
     public void setClassStats(ExecutableStats classStats) {
         this.classStats = classStats;
+    }
+    public ExecutableStats getTypeStats() {
+        return typeStats;
+    }
+    public void setTypeStats(ExecutableStats typeStats) {
+        this.typeStats = typeStats;
     }
     public ExecutableStats getFieldStats() {
         return fieldStats;

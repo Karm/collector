@@ -23,6 +23,7 @@ package com.redhat.quarkus.mandrel.collector.report.adapter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,16 +50,70 @@ import com.redhat.quarkus.mandrel.collector.report.model.graal.ResourcesInfo;
 
 public class StatsAdapterTest {
     
+    private enum SchemaVersion {
+        VER_0_9_0,
+        VER_0_9_1
+    }
+    
+    private static class StatResult {
+        private final ImageStats im;
+        private final GraalStats gs;
+        
+        private StatResult(ImageStats im, GraalStats gs) {
+            this.im = im;
+            this.gs = gs;
+        }
+    }
+    
     private static final StatsAdapter ADAPTER = new StatsAdapter();
     
     @Test
     public void canAdaptGraalToImageStats() {
-        doTest(true);
-        doTest(false);
+        doVersionTest(SchemaVersion.VER_0_9_0);
+        doVersionTest(SchemaVersion.VER_0_9_1);
     }
     
-    private void doTest(boolean withDebugInfo) {
-        GraalStats stat = produceGraalStat(withDebugInfo);
+    private void doVersionTest(SchemaVersion version) {
+        StatResult s = doTest(true, version);
+        versionSpecificAssertions(s, version);
+        s = doTest(false, version);
+        versionSpecificAssertions(s, version);
+    }
+
+    private void versionSpecificAssertions(StatResult s, SchemaVersion version) {
+        switch (version) {
+            case VER_0_9_0:
+                version090Assertions(s);
+                break;
+            case VER_0_9_1:
+                version091Assertions(s);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown schema version " + version);
+        }
+    }
+
+    private void version091Assertions(StatResult s) {
+        ImageStats im = s.im;
+        GraalStats gs = s.gs;
+        // 0.9.1 must have timing stats
+        assertTrue(im.getResourceStats().getTotalTimeSeconds() > 0);
+        // 0.9.1 must have typeStats
+        assertNotNull(gs.getAnalysisResults().getTypeStats());
+    }
+
+    private void version090Assertions(StatResult s) {
+        ImageStats im = s.im;
+        GraalStats gs = s.gs;
+        // 0.9.0 doesn't have timing stats
+        assertEquals(-1, im.getResourceStats().getTotalTimeSeconds());
+        // 0.9.0 doesn't have typeStats
+        assertNull(gs.getAnalysisResults().getTypeStats());
+        assertNotNull(gs.getAnalysisResults().getClassStats());
+    }
+
+    private StatResult doTest(boolean withDebugInfo, SchemaVersion version) {
+        GraalStats stat = produceGraalStat(withDebugInfo, version);
 
         ImageStats imStat = ADAPTER.adapt(stat);
 
@@ -86,9 +141,9 @@ public class StatsAdapterTest {
 
         ReachableImageStats reachSt = imStat.getReachableStats();
         assertNotNull(reachSt);
-        assertEquals(stat.getAnalysisResults().getClassStats().getReachable(), reachSt.getNumClasses());
         assertEquals(stat.getAnalysisResults().getMethodStats().getReachable(), reachSt.getNumMethods());
         assertEquals(stat.getAnalysisResults().getFieldStats().getReachable(), reachSt.getNumFields());
+        assertEquals(stat.getAnalysisResults().getClassStats().getReachable(), reachSt.getNumClasses());
 
         ImageSizeStats sizeStat = imStat.getSizeStats();
         assertNotNull(sizeStat);
@@ -109,6 +164,7 @@ public class StatsAdapterTest {
         assertEquals(stat.getResourceUsage().getCpu().getCoresTotal(), perfStats.getNumCpuCores());
         assertEquals(stat.getResourceUsage().getMemory().getPeakRSS(), perfStats.getPeakRSSBytes());
         assertEquals(stat.getResourceUsage().getMemory().getMachineTotal(), perfStats.getBuilderMachineMemTotal());
+        return new StatResult(imStat, stat);
     }
 
     private Long calculateOtherBytes(GraalStats stat, boolean withDebugInfo) {
@@ -122,7 +178,45 @@ public class StatsAdapterTest {
                 stat.getImageDetails().getImageHeap().getBytes());
     }
 
-    private GraalStats produceGraalStat(boolean withDebugInfo) {
+    private GraalStats produceGraalStat(boolean withDebugInfo, SchemaVersion version) {
+        switch (version) {
+            case VER_0_9_0:
+                return produceGraalStatVers090(withDebugInfo);
+            case VER_0_9_1:
+                return produceGraalStatVers091(withDebugInfo);
+            default:
+                throw new IllegalArgumentException("Unknown schema version " + version);
+            
+        }
+    }
+    
+    private GraalStats produceGraalStatVers091(boolean withDebugInfo) {
+        GraalStats s = produceGenericBaseStat(withDebugInfo);
+        // Schema 0.9.1 uses typeStats and sets build time
+        ExecutableStats typeStats = new ExecutableStats();
+        typeStats.setJni(10);
+        typeStats.setReflection(1222);
+        typeStats.setTotal(2000);
+        typeStats.setReachable(1800);
+        s.getAnalysisResults().setTypeStats(typeStats);
+        ResourceUsage rs = s.getResourceUsage();
+        rs.setTotalTimeSecs(30.232);
+        return s;
+    }
+    
+    private GraalStats produceGraalStatVers090(boolean withDebugInfo) {
+        GraalStats s = produceGenericBaseStat(withDebugInfo);
+        // Schema 0.9.0 used classStats over typeStats
+        ExecutableStats classStats = new ExecutableStats();
+        classStats.setJni(10);
+        classStats.setReflection(1222);
+        classStats.setTotal(2000);
+        classStats.setReachable(1800);
+        s.getAnalysisResults().setClassStats(classStats);
+        return s;
+    }
+
+    private GraalStats produceGenericBaseStat(boolean withDebugInfo) {
         GraalStats s = new GraalStats();
         GeneralInfo general = new GeneralInfo();
         general.setCCompiler("GCC");
@@ -144,12 +238,6 @@ public class StatsAdapterTest {
         usage.setGc(gcInfo);
         
         AnalysisResults analysis = new AnalysisResults();
-        ExecutableStats classStats = new ExecutableStats();
-        classStats.setJni(10);
-        classStats.setReflection(1222);
-        classStats.setTotal(2000);
-        classStats.setReachable(1800);
-        analysis.setClassStats(classStats);
         ExecutableStats methodStats = new ExecutableStats();
         methodStats.setJni(2);
         methodStats.setReflection(121);
@@ -189,5 +277,4 @@ public class StatsAdapterTest {
         s.setImageDetails(imageDetails);
         return s;
     }
-
 }
