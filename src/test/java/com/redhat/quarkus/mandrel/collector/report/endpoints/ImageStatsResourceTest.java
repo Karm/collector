@@ -51,6 +51,7 @@ import com.redhat.quarkus.mandrel.collector.report.model.JNIAccessStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ReachableImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ReflectionRegistrationStats;
 import com.redhat.quarkus.mandrel.collector.report.model.TotalClassesStats;
+import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -61,7 +62,7 @@ import io.restassured.response.ResponseBody;
 @QuarkusTest
 public class ImageStatsResourceTest {
 
-    
+    private static final String IMPORT_URL = StatsTestHelper.BASE_URL + "/import";
 
     @BeforeAll
     public static void setup() {
@@ -113,6 +114,59 @@ public class ImageStatsResourceTest {
         given().contentType(ContentType.JSON).header("token", rtoken).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
                 .statusCode(204)
                 .body(is(""));
+    }
+    
+    @Test
+    public void testImport() throws Exception {
+        String token = StatsTestHelper.login(Mode.READ_WRITE);
+        String myTag = "import-test";
+        List<Long> statIds = new ArrayList<>();
+        String json = StatsTestHelper.getV090StatString();
+        GraalStats gStat = StatsTestHelper.parseV090Stat();
+        
+        // Import v0.9.0 schema graal json
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
+                .when().post(IMPORT_URL + "?t=" + myTag).body();
+        ImageStats result = body.as(ImageStats.class);
+        assertEquals(myTag, result.getTag());
+        assertTrue(result.getId() > 0);
+        assertEquals(gStat.getAnalysisResults().getClassStats().getReachable(), result.getReachableStats().getNumClasses());
+        assertTrue(result.getResourceStats().getTotalTimeSeconds() < 0);
+        statIds.add(result.getId());
+        
+        // Import v0.9.1 schema graal json
+        json = StatsTestHelper.getV091StatString();
+        gStat = StatsTestHelper.parseV091Stat();
+        body = given().contentType(ContentType.JSON).header("token", token).body(json)
+                .when().post(IMPORT_URL + "?t=" + myTag).body();
+        result = body.as(ImageStats.class);
+        assertEquals(myTag, result.getTag());
+        assertTrue(result.getId() > 0);
+        assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(), result.getReachableStats().getNumClasses());
+        assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
+        statIds.add(result.getId());
+        
+        // Find stats by tag
+        ImageStats[] results = given()
+                .when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/tag/" + myTag)
+                .body().as(ImageStats[].class);
+        assertEquals(2, results.length);
+        for (ImageStats s : results) {
+            assertEquals(myTag, s.getTag());
+        }
+
+        // Delete them again
+        String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
+        ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
+                .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
+        assertEquals(2, deletedIds.length);
+
+        // no more image stats
+        given()
+                .when().header("token", token).get(StatsTestHelper.BASE_URL)
+                .then()
+                .statusCode(200)
+                .body(is("[]"));
     }
 
     @Test

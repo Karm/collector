@@ -72,9 +72,16 @@ public class StatsAdapter {
         perfStats.setBuilderMachineMemTotal(graalStat.getResourceUsage().getMemory().getMachineTotal());
         perfStats.setNumCpuCores(graalStat.getResourceUsage().getCpu().getCoresTotal());
         perfStats.setPeakRSSBytes(graalStat.getResourceUsage().getMemory().getPeakRSS());
-        // Timing information needs to be updated using the PUT endpoint
-        // of api/v1/image-stats/<id>
-        perfStats.setTotalTimeSeconds(-1);
+        // Schema 0.9.1 added total time to the graal stats
+        double totalTimeSec = graalStat.getResourceUsage().getTotalTimeSecs();
+        if (totalTimeSec > 0) {
+            perfStats.setTotalTimeSeconds(totalTimeSec);
+        } else {
+            // Schema 0.9.0 (22.3):
+            // Timing information needs to be updated using the PUT endpoint
+            // of api/v1/image-stats/<id>
+            perfStats.setTotalTimeSeconds(-1);
+        }
         stats.setResourceStats(perfStats);
         return stats;
     }
