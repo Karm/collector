@@ -20,13 +20,13 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "build_perf_stats")
@@ -35,6 +35,8 @@ public class BuildPerformanceStats {
     private long id;
     @JsonProperty("total_build_time_sec")
     private double totalTimeSeconds;
+    @JsonProperty("gc_time_sec")
+    private double gcTimeSeconds;
     @JsonProperty("num_cpu_cores")
     private long numCpuCores;
     @JsonProperty("total_machine_memory")
@@ -61,6 +63,14 @@ public class BuildPerformanceStats {
 
     public void setTotalTimeSeconds(double totalTimeSeconds) {
         this.totalTimeSeconds = totalTimeSeconds;
+    }
+
+    public double getGcTimeSeconds() {
+        return gcTimeSeconds;
+    }
+
+    public void setGcTimeSeconds(double gcTimeSeconds) {
+        this.gcTimeSeconds = gcTimeSeconds;
     }
 
     public long getNumCpuCores() {
@@ -94,5 +104,4 @@ public class BuildPerformanceStats {
     public void setBuilderCpuLoad(double builderCpuLoad) {
         this.builderCpuLoad = builderCpuLoad;
     }
-
 }

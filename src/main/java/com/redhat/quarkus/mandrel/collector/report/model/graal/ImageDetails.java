@@ -32,28 +32,35 @@ public class ImageDetails {
     private CodeArea codeArea;
     @JsonProperty("image_heap")
     private ImageHeap imageHeap;
-    
+
     public long getSizeBytes() {
         return sizeBytes;
     }
+
     public void setSizeBytes(long sizeBytes) {
         this.sizeBytes = sizeBytes;
     }
+
     public DebugInfo getDebugInfo() {
         return debugInfo;
     }
+
     public void setDebugInfo(DebugInfo debugInfo) {
         this.debugInfo = debugInfo;
     }
+
     public CodeArea getCodeArea() {
         return codeArea;
     }
+
     public void setCodeArea(CodeArea codeArea) {
         this.codeArea = codeArea;
     }
+
     public ImageHeap getImageHeap() {
         return imageHeap;
     }
+
     public void setImageHeap(ImageHeap imageHeap) {
         this.imageHeap = imageHeap;
     }

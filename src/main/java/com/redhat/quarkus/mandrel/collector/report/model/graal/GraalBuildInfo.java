@@ -23,8 +23,7 @@ package com.redhat.quarkus.mandrel.collector.report.model.graal;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Object representing the JSON output of GraalVM's
- * -H:+CollectImageBuildStatistics -H:ImageBuildStatisticsFile=foo.json
+ * Object representing the JSON output of GraalVM's -H:+CollectImageBuildStatistics -H:ImageBuildStatisticsFile=foo.json
  *
  * For now this only retrieves the total build time.
  */

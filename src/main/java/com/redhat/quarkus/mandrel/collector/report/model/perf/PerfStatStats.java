@@ -9,11 +9,7 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * TODO: Break it into more entities, namely:
- *  - System stats
- *  - perf tool stats
- *  - GC stats
- *  - ...?
+ * TODO: Break it into more entities, namely: - System stats - perf tool stats - GC stats - ...?
  */
 @Entity(name = "perf_stat_stats")
 @Table(name = "perf_stat_stats")
@@ -47,7 +43,7 @@ public class PerfStatStats extends PanacheEntity {
     public long branchMisses = -1;
     public double secondsTimeElapsed = -1;
 
-    //GC
+    // GC
     public int fullGCevents = -1;
     public int incrementalGCevents = -1;
     public double timeSpentInGCs = -1.0;

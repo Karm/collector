@@ -20,9 +20,19 @@
 
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
+import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
+import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
+import org.jboss.logging.Logger;
+
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -37,14 +47,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
-import org.jboss.logging.Logger;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
-import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
-import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
+import java.util.Map;
+import java.util.TreeMap;
 
 @ApplicationScoped
 @Path("api/v1/image-stats")
@@ -81,6 +85,63 @@ public class ImageStatsResource {
 
     @RolesAllowed("token_read")
     @GET
+    @Path("experiment/{image_name}")
+    public Response getExperiment(@PathParam("image_name") String imageName) {
+        final ImageStats[] s = collection.getAllByImageName(imageName);
+        final Map<String, JsonArrayBuilder> nums = new TreeMap<>();
+        nums.put("tag", Json.createArrayBuilder());
+        nums.put("peak_rss_bytes", Json.createArrayBuilder());
+        nums.put("gc_total_ms", Json.createArrayBuilder());
+        nums.put("total_build_time_ms", Json.createArrayBuilder());
+        nums.put("code_area_bytes", Json.createArrayBuilder());
+        nums.put("image_total_bytes", Json.createArrayBuilder());
+        nums.put("image_heap_bytes", Json.createArrayBuilder());
+        nums.put("resources_bytes", Json.createArrayBuilder());
+        nums.put("resources_count", Json.createArrayBuilder());
+        nums.put("methods_total", Json.createArrayBuilder());
+        nums.put("methods_reflection", Json.createArrayBuilder());
+        nums.put("methods_jni", Json.createArrayBuilder());
+        nums.put("methods_reachable", Json.createArrayBuilder());
+        nums.put("classes_total", Json.createArrayBuilder());
+        nums.put("classes_reflection", Json.createArrayBuilder());
+        nums.put("classes_jni", Json.createArrayBuilder());
+        nums.put("classes_reachable", Json.createArrayBuilder());
+        nums.put("fields_total", Json.createArrayBuilder());
+        nums.put("fields_reflection", Json.createArrayBuilder());
+        nums.put("fields_jni", Json.createArrayBuilder());
+        nums.put("fields_reachable", Json.createArrayBuilder());
+        for (ImageStats i : s) {
+            nums.get("tag").add(i.getTag());
+            nums.get("peak_rss_bytes").add(i.getResourceStats().getPeakRSSBytes());
+            nums.get("gc_total_ms").add((long) (i.getResourceStats().getGcTimeSeconds() * 1000));
+            nums.get("total_build_time_ms").add((long) (i.getResourceStats().getTotalTimeSeconds() * 1000));
+            nums.get("code_area_bytes").add(i.getSizeStats().getCodeCacheSize());
+            nums.get("image_total_bytes").add(i.getSizeStats().getTotalSize());
+            nums.get("image_heap_bytes").add(i.getSizeStats().getHeapSize());
+            nums.get("resources_bytes").add(i.getSizeStats().getResourcesSize());
+            nums.get("resources_count").add(i.getSizeStats().getResourcesCount());
+            nums.get("methods_total").add(i.getTotalStats().getNumMethods());
+            nums.get("methods_reflection").add(i.getReflectionStats().getNumMethods());
+            nums.get("methods_jni").add(i.getJniStats().getNumMethods());
+            nums.get("methods_reachable").add(i.getReachableStats().getNumMethods());
+            nums.get("classes_total").add(i.getTotalStats().getNumClasses());
+            nums.get("classes_reflection").add(i.getReflectionStats().getNumClasses());
+            nums.get("classes_jni").add(i.getJniStats().getNumClasses());
+            nums.get("classes_reachable").add(i.getReachableStats().getNumClasses());
+            nums.get("fields_total").add(i.getTotalStats().getNumFields());
+            nums.get("fields_reflection").add(i.getReflectionStats().getNumFields());
+            nums.get("fields_jni").add(i.getJniStats().getNumFields());
+            nums.get("fields_reachable").add(i.getReachableStats().getNumFields());
+        }
+        final JsonObjectBuilder rb = Json.createObjectBuilder();
+        for (Map.Entry<String, JsonArrayBuilder> kv : nums.entrySet()) {
+            rb.add(kv.getKey(), kv.getValue().build());
+        }
+        return Response.status(Response.Status.OK).entity(rb.build().toString()).build();
+    }
+
+    @RolesAllowed("token_read")
+    @GET
     @Path("tags/distinct")
     public String[] getDistinctTags() {
         return collection.getDistinctTags();
@@ -97,7 +158,7 @@ public class ImageStatsResource {
         }
         return collection.add(stat);
     }
-    
+
     @RolesAllowed("token_write")
     @PUT
     @Path("{statId:\\d+}")
@@ -145,9 +206,7 @@ public class ImageStatsResource {
                 exceptionJson.put("error", exception.getMessage());
             }
 
-            return Response.status(code)
-                    .entity(exceptionJson)
-                    .build();
+            return Response.status(code).entity(exceptionJson).build();
         }
 
     }

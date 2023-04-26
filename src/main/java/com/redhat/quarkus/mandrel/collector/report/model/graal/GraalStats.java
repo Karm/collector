@@ -26,13 +26,13 @@ public class GraalStats {
 
     @JsonProperty("general_info")
     private GeneralInfo genInfo;
-    
+
     @JsonProperty("analysis_results")
     private AnalysisResults analysisResults;
-    
+
     @JsonProperty("image_details")
     private ImageDetails imageDetails;
-    
+
     @JsonProperty("resource_usage")
     private ResourceUsage resourceUsage;
 

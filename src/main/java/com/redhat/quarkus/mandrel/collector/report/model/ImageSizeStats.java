@@ -20,14 +20,14 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "image_size_stats")
@@ -50,6 +50,14 @@ public class ImageSizeStats {
     @Column(name = "heap_bytes", nullable = false)
     private long heapSize;
 
+    @JsonProperty("resources_bytes")
+    @Column(name = "resources_bytes", nullable = false)
+    private long resourcesSize;
+
+    @JsonProperty("resources_count")
+    @Column(name = "resources_count", nullable = false)
+    private long resourcesCount;
+
     @JsonProperty("other_bytes")
     @Column(name = "other_bytes", nullable = false)
     private long otherSize;
@@ -62,10 +70,13 @@ public class ImageSizeStats {
         // default constructor
     }
 
-    public ImageSizeStats(long totalSize, long codeCacheSize, long heapSize, long otherSize, long debuginfoSize) {
-        this.codeCacheSize = codeCacheSize;
+    public ImageSizeStats(long totalSize, long codeCacheSize, long heapSize, long resourcesSize, long resourcesCount,
+            long otherSize, long debuginfoSize) {
         this.totalSize = totalSize;
+        this.codeCacheSize = codeCacheSize;
         this.heapSize = heapSize;
+        this.resourcesSize = resourcesSize;
+        this.resourcesCount = resourcesCount;
         this.otherSize = otherSize;
         this.debuginfoSize = debuginfoSize;
     }
@@ -102,6 +113,22 @@ public class ImageSizeStats {
         this.heapSize = heapSize;
     }
 
+    public long getResourcesSize() {
+        return resourcesSize;
+    }
+
+    public void setResourcesSize(long resourcesSize) {
+        this.resourcesSize = resourcesSize;
+    }
+
+    public long getResourcesCount() {
+        return resourcesCount;
+    }
+
+    public void setResourcesCount(long resourcesCount) {
+        this.resourcesCount = resourcesCount;
+    }
+
     public long getOtherSize() {
         return otherSize;
     }
@@ -117,5 +144,4 @@ public class ImageSizeStats {
     public void setDebuginfoSize(long debuginfoSize) {
         this.debuginfoSize = debuginfoSize;
     }
-
 }

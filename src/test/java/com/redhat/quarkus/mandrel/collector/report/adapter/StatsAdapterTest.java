@@ -49,30 +49,30 @@ import com.redhat.quarkus.mandrel.collector.report.model.graal.ResourceUsage;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.ResourcesInfo;
 
 public class StatsAdapterTest {
-    
+
     private enum SchemaVersion {
         VER_0_9_0,
         VER_0_9_1
     }
-    
+
     private static class StatResult {
         private final ImageStats im;
         private final GraalStats gs;
-        
+
         private StatResult(ImageStats im, GraalStats gs) {
             this.im = im;
             this.gs = gs;
         }
     }
-    
+
     private static final StatsAdapter ADAPTER = new StatsAdapter();
-    
+
     @Test
     public void canAdaptGraalToImageStats() {
         doVersionTest(SchemaVersion.VER_0_9_0);
         doVersionTest(SchemaVersion.VER_0_9_1);
     }
-    
+
     private void doVersionTest(SchemaVersion version) {
         StatResult s = doTest(true, version);
         versionSpecificAssertions(s, version);
@@ -170,12 +170,11 @@ public class StatsAdapterTest {
     private Long calculateOtherBytes(GraalStats stat, boolean withDebugInfo) {
         long debugInfoBytes = 0;
         if (withDebugInfo) {
-            debugInfoBytes = stat.getImageDetails().getDebugInfo().getBytes(); 
+            debugInfoBytes = stat.getImageDetails().getDebugInfo().getBytes();
         }
         long total = stat.getImageDetails().getSizeBytes();
-        return total - ( stat.getImageDetails().getCodeArea().getBytes() + 
-                debugInfoBytes +
-                stat.getImageDetails().getImageHeap().getBytes());
+        return total - (stat.getImageDetails().getCodeArea().getBytes() + debugInfoBytes
+                + stat.getImageDetails().getImageHeap().getBytes());
     }
 
     private GraalStats produceGraalStat(boolean withDebugInfo, SchemaVersion version) {
@@ -186,10 +185,10 @@ public class StatsAdapterTest {
                 return produceGraalStatVers091(withDebugInfo);
             default:
                 throw new IllegalArgumentException("Unknown schema version " + version);
-            
+
         }
     }
-    
+
     private GraalStats produceGraalStatVers091(boolean withDebugInfo) {
         GraalStats s = produceGenericBaseStat(withDebugInfo);
         // Schema 0.9.1 uses typeStats and sets build time
@@ -203,7 +202,7 @@ public class StatsAdapterTest {
         rs.setTotalTimeSecs(30.232);
         return s;
     }
-    
+
     private GraalStats produceGraalStatVers090(boolean withDebugInfo) {
         GraalStats s = produceGenericBaseStat(withDebugInfo);
         // Schema 0.9.0 used classStats over typeStats
@@ -236,7 +235,7 @@ public class StatsAdapterTest {
         usage.setCpu(cpuInfo);
         usage.setMemory(memInfo);
         usage.setGc(gcInfo);
-        
+
         AnalysisResults analysis = new AnalysisResults();
         ExecutableStats methodStats = new ExecutableStats();
         methodStats.setJni(2);
@@ -250,7 +249,7 @@ public class StatsAdapterTest {
         fieldStats.setTotal(500);
         fieldStats.setReachable(302);
         analysis.setFieldStats(fieldStats);
-        
+
         ImageDetails imageDetails = new ImageDetails();
         imageDetails.setSizeBytes(300_000);
         CodeArea codeArea = new CodeArea();
@@ -270,7 +269,7 @@ public class StatsAdapterTest {
 
         imageDetails.setImageHeap(heap);
         imageDetails.setCodeArea(codeArea);
-        
+
         s.setGenInfo(general);
         s.setResourceUsage(usage);
         s.setAnalysisResults(analysis);

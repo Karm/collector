@@ -40,9 +40,9 @@ import io.restassured.http.ContentType;
 
 public class StatsTestHelper {
 
-    static final String BASE_URL = "/api/v1/image-stats";
+    public static final String BASE_URL = "/api/v1/image-stats";
 
-    static enum Mode {
+    public static enum Mode {
 
         READ("r"),
         READ_WRITE("rw"),
@@ -58,57 +58,52 @@ public class StatsTestHelper {
             return mode;
         }
     }
-    
+
     public static String login(Mode mode) {
         final CookieFilter cookies = new CookieFilter();
         // Login
-        RestAssured.given()
-                .filter(cookies)
-                .contentType(ContentType.URLENC)
-                .body("j_username=user&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).contentType(ContentType.URLENC)
+                .body("j_username=user&j_password=This is my password.").post("/j_security_check").then()
+                .statusCode(HttpStatus.SC_OK);
         // Authenticated request, only 'user' user can create tokens for now.
-        RestAssured.given()
-                .filter(cookies).when().get("/api/user/me").then()
-                .body(is("user")).statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).when().get("/api/user/me").then().body(is("user"))
+                .statusCode(HttpStatus.SC_OK);
 
         // Generate a new token
-        final String token = RestAssured.given()
-                .filter(cookies).when().post("/api/tokens/create/" + mode.getMode()).then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .body("message", containsString("Save the token safely. This is the only time"))
-                .extract().path("token");
+        final String token = RestAssured.given().filter(cookies).when().post("/api/tokens/create/" + mode.getMode())
+                .then().statusCode(HttpStatus.SC_CREATED)
+                .body("message", containsString("Save the token safely. This is the only time")).extract()
+                .path("token");
         return token;
     }
-    
+
     public static GraalStats parseV090Stat() {
         return parseJson(getV090StatString());
     }
-    
+
     public static GraalStats parseV091Stat() {
         return parseJson(getV091StatString());
     }
-    
+
     private static GraalStats parseJson(String raw) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            GraalStats stat = mapper.readValue(raw, GraalStats.class);
-            return stat;
+            return mapper.readValue(raw, GraalStats.class);
         } catch (JsonProcessingException e) {
             throw new AssertionError(e);
         }
     }
-    
+
     public static String getV090StatString() {
         return getStatString("build-stats-0.9.0.json");
     }
-    
+
     public static String getV091StatString() {
         return getStatString("build-stats-0.9.1.json");
     }
-    
-    private static String getStatString(String name) {
+
+    public static String getStatString(String name) {
         try (InputStream is = StatsTestHelper.class.getResourceAsStream("/" + name)) {
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {

@@ -31,7 +31,7 @@ import com.redhat.quarkus.mandrel.collector.report.model.graal.DebugInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
 
 public class StatsAdapter {
-    
+
     public ImageStats adapt(GraalStats graalStat) {
         ImageStats stats = new ImageStats(graalStat.getGenInfo().getName());
         stats.setGraalVersion(graalStat.getGenInfo().getGraalVersion());
@@ -55,7 +55,7 @@ public class StatsAdapter {
         reach.setNumMethods(graalStat.getAnalysisResults().getMethodStats().getReachable());
         reach.setNumFields(graalStat.getAnalysisResults().getFieldStats().getReachable());
         stats.setReachableStats(reach);
-        
+
         ImageSizeStats size = new ImageSizeStats();
         size.setCodeCacheSize(graalStat.getImageDetails().getCodeArea().getBytes());
         DebugInfo debugInfo = graalStat.getImageDetails().getDebugInfo();
@@ -65,8 +65,10 @@ public class StatsAdapter {
         size.setHeapSize(graalStat.getImageDetails().getImageHeap().getBytes());
         size.setTotalSize(graalStat.getImageDetails().getSizeBytes());
         size.setOtherSize(calculateOtherSize(graalStat));
+        size.setResourcesSize(graalStat.getImageDetails().getImageHeap().getResources().getBytes());
+        size.setResourcesCount(graalStat.getImageDetails().getImageHeap().getResources().getCount());
         stats.setSizeStats(size);
-        
+
         BuildPerformanceStats perfStats = new BuildPerformanceStats();
         perfStats.setBuilderCpuLoad(graalStat.getResourceUsage().getCpu().getCpuLoad());
         perfStats.setBuilderMachineMemTotal(graalStat.getResourceUsage().getMemory().getMachineTotal());
@@ -81,6 +83,15 @@ public class StatsAdapter {
             // Timing information needs to be updated using the PUT endpoint
             // of api/v1/image-stats/<id>
             perfStats.setTotalTimeSeconds(-1);
+        }
+        double gcTimeSec = graalStat.getResourceUsage().getGc().getTotalSecs();
+        if (gcTimeSec > 0) {
+            perfStats.setGcTimeSeconds(gcTimeSec);
+        } else {
+            // Schema 0.9.0 (22.3):
+            // Timing information needs to be updated using the PUT endpoint
+            // of api/v1/image-stats/<id>
+            perfStats.setGcTimeSeconds(-1);
         }
         stats.setResourceStats(perfStats);
         return stats;

@@ -34,8 +34,8 @@ public class Version {
 
     @PostConstruct
     public void init() {
-        try (final InputStream is = Objects.requireNonNull(Version.class.getClassLoader()
-                .getResourceAsStream("version.txt"))) {
+        try (final InputStream is = Objects
+                .requireNonNull(Version.class.getClassLoader().getResourceAsStream("version.txt"))) {
             git = new String(is.readAllBytes(), StandardCharsets.US_ASCII);
         } catch (Exception e) {
             git = "Unknown";

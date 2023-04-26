@@ -53,7 +53,8 @@ public class TokenAuthMechanism implements HttpAuthenticationMechanism {
             // No valid token header, no token auth...
             return Uni.createFrom().optional(Optional.empty());
         }
-        return identityProviderManager.authenticate(new TokenAuthenticationRequest(new TokenCredential(token, TOKEN_TYPE)));
+        return identityProviderManager
+                .authenticate(new TokenAuthenticationRequest(new TokenCredential(token, TOKEN_TYPE)));
     }
 
     @Override

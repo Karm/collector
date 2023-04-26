@@ -34,34 +34,43 @@ public class GeneralInfo {
     private String garbageCollector;
     @JsonProperty("graalvm_version")
     private String graalVersion;
-    
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getCCompiler() {
         return cCompiler;
     }
+
     public void setCCompiler(String cCompiler) {
         this.cCompiler = cCompiler;
     }
+
     public String getJavaVersion() {
         return javaVersion;
     }
+
     public void setJavaVersion(String javaVersion) {
         this.javaVersion = javaVersion;
     }
+
     public String getGarbageCollector() {
         return garbageCollector;
     }
+
     public void setGarbageCollector(String garbageCollector) {
         this.garbageCollector = garbageCollector;
     }
+
     public String getGraalVersion() {
         return graalVersion;
     }
+
     public void setGraalVersion(String graalVersion) {
         this.graalVersion = graalVersion;
     }

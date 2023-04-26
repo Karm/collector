@@ -52,8 +52,7 @@ public class TokenRepository implements PanacheRepository<Token> {
     public static String randomStringHashed() throws NoSuchAlgorithmException {
         final byte[] bytes = new byte[256];
         new SecureRandom().nextBytes(bytes);
-        return HexFormat.of().formatHex(
-                MessageDigest.getInstance("SHA-512").digest(bytes));
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-512").digest(bytes));
     }
 
 }
