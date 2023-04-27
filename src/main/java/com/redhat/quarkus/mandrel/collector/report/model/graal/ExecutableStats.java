@@ -26,30 +26,37 @@ public class ExecutableStats {
     private long reachable;
     private long reflection;
     private long jni;
-    
+
     public long getTotal() {
         return total;
     }
+
     public void setTotal(long total) {
         this.total = total;
     }
+
     public long getReachable() {
         return reachable;
     }
+
     public void setReachable(long reachable) {
         this.reachable = reachable;
     }
+
     public long getReflection() {
         return reflection;
     }
+
     public void setReflection(long reflection) {
         this.reflection = reflection;
     }
+
     public long getJni() {
         return jni;
     }
+
     public void setJni(long jni) {
         this.jni = jni;
     }
-    
+
 }

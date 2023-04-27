@@ -20,14 +20,13 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @ApplicationScoped
 public class ImageStatsCollection {
@@ -45,18 +44,21 @@ public class ImageStatsCollection {
     }
 
     public ImageStats[] getAll() {
-        return em.createNamedQuery("ImageStats.findAll", ImageStats.class)
-                .getResultList().toArray(new ImageStats[0]);
+        return em.createNamedQuery("ImageStats.findAll", ImageStats.class).getResultList().toArray(new ImageStats[0]);
     }
 
     public ImageStats[] getAllByTag(String tag) {
-        return em.createNamedQuery("ImageStats.findByTag", ImageStats.class)
-                .setParameter(TAG_PARAM, tag).getResultList().toArray(new ImageStats[0]);
+        return em.createNamedQuery("ImageStats.findByTag", ImageStats.class).setParameter(TAG_PARAM, tag)
+                .getResultList().toArray(new ImageStats[0]);
+    }
+
+    public ImageStats[] getAllByImageName(String imageName) {
+        return em.createNamedQuery("ImageStats.findByImageName", ImageStats.class).setParameter("image_name", imageName)
+                .getResultList().toArray(new ImageStats[0]);
     }
 
     public String[] getDistinctTags() {
-        return em.createNamedQuery("ImageStats.distinctTags", String.class)
-                .getResultList().toArray(new String[0]);
+        return em.createNamedQuery("ImageStats.distinctTags", String.class).getResultList().toArray(new String[0]);
     }
 
     public ImageStats getSingle(long id) {
@@ -80,7 +82,7 @@ public class ImageStatsCollection {
         }
         return removed.toArray(new ImageStats[0]);
     }
-    
+
     @Transactional
     public ImageStats updateBuildTime(long id, long buildTimeMilis) {
         ImageStats stat = getSingle(id);
@@ -89,7 +91,7 @@ public class ImageStatsCollection {
         }
         if (buildTimeMilis != 0) {
             BuildPerformanceStats perfStats = stat.getResourceStats();
-            double buildTimeSec = ((double)buildTimeMilis) / 1000;
+            double buildTimeSec = ((double) buildTimeMilis) / 1000;
             perfStats.setTotalTimeSeconds(buildTimeSec);
         }
         return stat;

@@ -26,7 +26,7 @@ public class GCInfo {
 
     @JsonProperty("count")
     private long count;
-    
+
     @JsonProperty("total_secs")
     private double totalSecs;
 

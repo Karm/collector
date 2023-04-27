@@ -46,11 +46,11 @@ import static com.redhat.quarkus.mandrel.collector.access.endpoints.TokenResourc
 public class PublicResource {
 
     public static final Pattern usernamePattern = Pattern.compile("[\\w-_]{3,12}");
-    public static final Pattern passwordPattern = Pattern.compile("[\\p{L}\\w \\Q:!<#=$>%?&@[(\\)]*^+_,`-{.|/}~\\E]{12,512}");
+    public static final Pattern passwordPattern = Pattern
+            .compile("[\\p{L}\\w \\Q:!<#=$>%?&@[(\\)]*^+_,`-{.|/}~\\E]{12,512}");
     // https://owasp.org/www-community/OWASP_Validation_Regex_Repository
-    public static final Pattern emailPattern = Pattern
-            .compile(
-                    "^[a-zA-Z0-9_+&*-]{1,35}(?:\\.[a-zA-Z0-9_+&*-]{1,35}){0,35}@(?:[a-zA-Z0-9-]{1,35}\\.){1,10}[a-zA-Z]{2,7}$");
+    public static final Pattern emailPattern = Pattern.compile(
+            "^[a-zA-Z0-9_+&*-]{1,35}(?:\\.[a-zA-Z0-9_+&*-]{1,35}){0,35}@(?:[a-zA-Z0-9-]{1,35}\\.){1,10}[a-zA-Z]{2,7}$");
 
     @Inject
     ReactiveMailer mailer;
@@ -125,12 +125,13 @@ public class PublicResource {
         }
         final String changePasswordToken = randomStringHashed();
         User.add(username, randomStringHashed(), changePasswordToken, "user", email);
-        // Sending email might fail (SMTP down etc.), the Exception thrown then rolls back the transaction of adding User.
+        // Sending email might fail (SMTP down etc.), the Exception thrown then rolls back the transaction of adding
+        // User.
         mailer.send(Mail.withText(email, signupEmailMessageSubject,
-                        String.format(signupEmailMessageBody, username, changePasswordToken, url)))
-                .await().atMost(Duration.ofSeconds(30));
-        return Response.status(Response.Status.CREATED).entity(
-                String.format(signupSuccessUserCreated, signupEmailContact)).build();
+                String.format(signupEmailMessageBody, username, changePasswordToken, url))).await()
+                .atMost(Duration.ofSeconds(30));
+        return Response.status(Response.Status.CREATED)
+                .entity(String.format(signupSuccessUserCreated, signupEmailContact)).build();
     }
 
     @POST
@@ -139,9 +140,8 @@ public class PublicResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response changepasswd(
-            @FormParam("token") String token,
-            @FormParam("password") String password) throws NoSuchAlgorithmException {
+    public Response changepasswd(@FormParam("token") String token, @FormParam("password") String password)
+            throws NoSuchAlgorithmException {
         if (token == null || !tokenPattern.matcher(token).matches()) {
             return Response.serverError().entity(String.format(signupErrorTokenMatch, tokenPattern)).build();
         }
@@ -155,8 +155,8 @@ public class PublicResource {
         user.changePasswordTokenHash = null;
         user.password = BcryptUtil.bcryptHash(password);
         user.persist();
-        return Response.status(Response.Status.CREATED).entity(
-                String.format(signupSuccessPasswordChanged, url)).build();
+        return Response.status(Response.Status.CREATED).entity(String.format(signupSuccessPasswordChanged, url))
+                .build();
     }
 
     @POST
@@ -180,9 +180,9 @@ public class PublicResource {
         user.changePasswordTokenHash = hash(changePasswordToken);
         user.persist();
         mailer.send(Mail.withText(email, forgotPasswdEmailMessageSubject,
-                        String.format(signupEmailMessageBody, username, changePasswordToken, url)))
-                .await().atMost(Duration.ofSeconds(10));
-        return Response.status(Response.Status.CREATED).entity(
-                String.format(forgotPasswdSuccess, signupEmailContact)).build();
+                String.format(signupEmailMessageBody, username, changePasswordToken, url))).await()
+                .atMost(Duration.ofSeconds(10));
+        return Response.status(Response.Status.CREATED).entity(String.format(forgotPasswdSuccess, signupEmailContact))
+                .build();
     }
 }

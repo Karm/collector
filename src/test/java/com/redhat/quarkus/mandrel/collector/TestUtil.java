@@ -38,16 +38,14 @@ public class TestUtil {
     public static Matcher parseLog(final Pattern lineMatchRegexp) {
         final Path logFilePath = Paths.get(".", "target", "quarkus.log").toAbsolutePath();
         final AtomicReference<Matcher> result = new AtomicReference<>();
-        org.awaitility.Awaitility.given().pollInterval(100, TimeUnit.MILLISECONDS)
-                .atMost(5, TimeUnit.SECONDS)
+        org.awaitility.Awaitility.given().pollInterval(100, TimeUnit.MILLISECONDS).atMost(5, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     assertTrue(Files.exists(logFilePath), "Quarkus log file " + logFilePath + " is missing");
                     boolean found = false;
                     Matcher matcher = null;
                     final StringBuilder sbLog = new StringBuilder();
-                    try (BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(new ByteArrayInputStream(Files.readAllBytes(logFilePath)),
-                                    StandardCharsets.UTF_8))) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                            new ByteArrayInputStream(Files.readAllBytes(logFilePath)), StandardCharsets.UTF_8))) {
                         String line;
                         while ((line = reader.readLine()) != null) {
                             sbLog.append(line).append("\r\n");
@@ -58,8 +56,8 @@ public class TestUtil {
                             }
                         }
                     }
-                    assertTrue(found, "Pattern " + lineMatchRegexp.pattern() + " not found in log " + logFilePath + ". \n" +
-                            "The log was: " + sbLog);
+                    assertTrue(found, "Pattern " + lineMatchRegexp.pattern() + " not found in log " + logFilePath
+                            + ". \n" + "The log was: " + sbLog);
                     result.set(matcher);
                 });
         return result.get();

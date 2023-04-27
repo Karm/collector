@@ -51,26 +51,20 @@ public class AuthTest {
     public void adminLogin() {
         final CookieFilter cookies = new CookieFilter();
         // Login
-        RestAssured.given()
-                .filter(cookies)
-                .contentType(ContentType.URLENC)
-                .body("j_username=admin&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).contentType(ContentType.URLENC)
+                .body("j_username=admin&j_password=This is my password.").post("/j_security_check").then()
+                .statusCode(HttpStatus.SC_OK);
         // Authenticated request, authorized with the role admin
-        RestAssured.given()
-                .filter(cookies).when().get("/api/admin/me").then()
-                .body(is("admin")).statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).when().get("/api/admin/me").then().body(is("admin"))
+                .statusCode(HttpStatus.SC_OK);
     }
 
     @Test
     public void userSignUpOK() {
         // SignUp - username and email
         final String username = "test_user";
-        RestAssured.given()
-                .contentType(ContentType.URLENC)
-                .body("username=" + username + "&email=me@example.com")
-                .post("/public/signup").then()
-                .body("message", containsString("User was successfully created."))
+        RestAssured.given().contentType(ContentType.URLENC).body("username=" + username + "&email=me@example.com")
+                .post("/public/signup").then().body("message", containsString("User was successfully created."))
                 .statusCode(HttpStatus.SC_CREATED);
         parseLog(Pattern.compile(".*Sending email Welcome to the Collector collective!.*"));
         parseLog(Pattern.compile(".*Use this one time token to set your password:.*"));
@@ -78,24 +72,19 @@ public class AuthTest {
         // Set password using the token from email
         final String tokenFromEmail = parseLog(Pattern.compile(".*token=(?<token>[\\w-]+).*")).group("token");
         final String newPassword = "This is my password.";
-        RestAssured.given()
-                .contentType(ContentType.URLENC)
-                .body("password=" + newPassword + "&token=" + tokenFromEmail)
+        RestAssured.given().contentType(ContentType.URLENC).body("password=" + newPassword + "&token=" + tokenFromEmail)
                 .post("/public/changepasswd").then()
                 .body("message", containsString("Your password was successfully changed."))
                 .statusCode(HttpStatus.SC_CREATED);
 
         // Login with our new username and password
         final CookieFilter cookies = new CookieFilter();
-        RestAssured.given()
-                .filter(cookies)
-                .contentType(ContentType.URLENC)
-                .body("j_username=" + username + "&j_password=" + newPassword)
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).contentType(ContentType.URLENC)
+                .body("j_username=" + username + "&j_password=" + newPassword).post("/j_security_check").then()
+                .statusCode(HttpStatus.SC_OK);
 
         // Try to do something only a logged-in user can do
-        RestAssured.given()
-                .filter(cookies).when().get("/api/user/me").then()
-                .body(is(username)).statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).when().get("/api/user/me").then().body(is(username))
+                .statusCode(HttpStatus.SC_OK);
     }
 }

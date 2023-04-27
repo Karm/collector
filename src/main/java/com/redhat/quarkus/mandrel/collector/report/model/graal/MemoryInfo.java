@@ -28,16 +28,19 @@ public class MemoryInfo {
     private long machineTotal;
     @JsonProperty("peak_rss_bytes")
     private long peakRSS;
-    
+
     public long getMachineTotal() {
         return machineTotal;
     }
+
     public void setMachineTotal(long machineTotal) {
         this.machineTotal = machineTotal;
     }
+
     public long getPeakRSS() {
         return peakRSS;
     }
+
     public void setPeakRSS(long peakRSS) {
         this.peakRSS = peakRSS;
     }

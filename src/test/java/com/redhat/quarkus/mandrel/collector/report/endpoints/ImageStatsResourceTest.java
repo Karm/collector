@@ -20,26 +20,6 @@
 
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,34 +32,46 @@ import com.redhat.quarkus.mandrel.collector.report.model.ReachableImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ReflectionRegistrationStats;
 import com.redhat.quarkus.mandrel.collector.report.model.TotalClassesStats;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
-
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import io.restassured.response.ResponseBody;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 public class ImageStatsResourceTest {
 
-    private static final String IMPORT_URL = StatsTestHelper.BASE_URL + "/import";
+    public static final String IMPORT_URL = StatsTestHelper.BASE_URL + "/import";
 
     @BeforeAll
     public static void setup() {
         RestAssured.defaultParser = Parser.JSON;
     }
 
-    
-
     @Test
     public void testListEmpty() {
         String token = StatsTestHelper.login(Mode.READ);
-        given()
-                .when().contentType(ContentType.JSON)
-                .header("token", token).get(StatsTestHelper.BASE_URL)
-                .then()
-                .statusCode(200)
-                .body(is("[]"));
+        given().when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL).then()
+                .statusCode(200).body(is("[]"));
     }
 
     @Test
@@ -88,34 +80,28 @@ public class ImageStatsResourceTest {
         String wtoken = StatsTestHelper.login(Mode.WRITE);
         ImageStats imageStats = createImageStat("hello");
         String json = toJsonString(imageStats);
-        ResponseBody<?> body = given().contentType(ContentType.JSON)
-                .header("token", wtoken)
-                .body(json)
-                .when().post(StatsTestHelper.BASE_URL).body();
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", wtoken).body(json).when()
+                .post(StatsTestHelper.BASE_URL).body();
         ImageStats result = body.as(ImageStats.class);
         assertEquals(imageStats.getGraalVersion(), result.getGraalVersion());
         assertEquals(imageStats.getImageName(), result.getImageName());
         assertTrue(result.getId() > 0);
 
         // Ensure we can listOne the result
-        given().contentType(ContentType.JSON)
-                .header("token", rtoken).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
-                .statusCode(200).body(
-                        containsString(imageStats.getImageName()),
-                        containsString(imageStats.getGraalVersion()));
+        given().contentType(ContentType.JSON).header("token", rtoken).when()
+                .get(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(200)
+                .body(containsString(imageStats.getImageName()), containsString(imageStats.getGraalVersion()));
 
         // Delete the created resource again
-        given().contentType(ContentType.JSON).header("token", wtoken).when().delete(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
-                .statusCode(200).body(
-                        containsString(imageStats.getImageName()),
-                        containsString(imageStats.getGraalVersion()));
+        given().contentType(ContentType.JSON).header("token", wtoken).when()
+                .delete(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(200)
+                .body(containsString(imageStats.getImageName()), containsString(imageStats.getGraalVersion()));
 
         // Now list one should no longer find the resource
-        given().contentType(ContentType.JSON).header("token", rtoken).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
-                .statusCode(204)
-                .body(is(""));
+        given().contentType(ContentType.JSON).header("token", rtoken).when()
+                .get(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(204).body(is(""));
     }
-    
+
     @Test
     public void testImport() throws Exception {
         String token = StatsTestHelper.login(Mode.READ_WRITE);
@@ -123,33 +109,34 @@ public class ImageStatsResourceTest {
         List<Long> statIds = new ArrayList<>();
         String json = StatsTestHelper.getV090StatString();
         GraalStats gStat = StatsTestHelper.parseV090Stat();
-        
+
         // Import v0.9.0 schema graal json
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(IMPORT_URL + "?t=" + myTag).body();
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(IMPORT_URL + "?t=" + myTag).body();
         ImageStats result = body.as(ImageStats.class);
         assertEquals(myTag, result.getTag());
         assertTrue(result.getId() > 0);
-        assertEquals(gStat.getAnalysisResults().getClassStats().getReachable(), result.getReachableStats().getNumClasses());
+        assertEquals(gStat.getAnalysisResults().getClassStats().getReachable(),
+                result.getReachableStats().getNumClasses());
         assertTrue(result.getResourceStats().getTotalTimeSeconds() < 0);
         statIds.add(result.getId());
-        
+
         // Import v0.9.1 schema graal json
         json = StatsTestHelper.getV091StatString();
         gStat = StatsTestHelper.parseV091Stat();
-        body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(IMPORT_URL + "?t=" + myTag).body();
+        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(IMPORT_URL + "?t=" + myTag).body();
         result = body.as(ImageStats.class);
         assertEquals(myTag, result.getTag());
         assertTrue(result.getId() > 0);
-        assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(), result.getReachableStats().getNumClasses());
+        assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(),
+                result.getReachableStats().getNumClasses());
         assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
         statIds.add(result.getId());
-        
+
         // Find stats by tag
-        ImageStats[] results = given()
-                .when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/tag/" + myTag)
-                .body().as(ImageStats[].class);
+        ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
         assertEquals(2, results.length);
         for (ImageStats s : results) {
             assertEquals(myTag, s.getTag());
@@ -162,11 +149,7 @@ public class ImageStatsResourceTest {
         assertEquals(2, deletedIds.length);
 
         // no more image stats
-        given()
-                .when().header("token", token).get(StatsTestHelper.BASE_URL)
-                .then()
-                .statusCode(200)
-                .body(is("[]"));
+        given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
     }
 
     @Test
@@ -176,8 +159,8 @@ public class ImageStatsResourceTest {
         List<Long> statIds = new ArrayList<>();
         ImageStats stats = createImageStat("foo-stat", myTag);
         String json = toJsonString(stats);
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(StatsTestHelper.BASE_URL).body();
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL).body();
         ImageStats result = body.as(ImageStats.class);
         assertEquals(myTag, result.getTag());
         assertTrue(result.getId() > 0);
@@ -186,8 +169,8 @@ public class ImageStatsResourceTest {
         // Add another one with a tag using the query param
         stats = createImageStat("other");
         json = toJsonString(stats);
-        body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(StatsTestHelper.BASE_URL + "?t=" + myTag).body();
+        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL + "?t=" + myTag).body();
         result = body.as(ImageStats.class);
         assertEquals(myTag, result.getTag());
         assertTrue(result.getId() > 0);
@@ -196,17 +179,16 @@ public class ImageStatsResourceTest {
         // Add a third one without a tag
         stats = createImageStat("third");
         json = toJsonString(stats);
-        body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(StatsTestHelper.BASE_URL).body();
+        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL).body();
         result = body.as(ImageStats.class);
         assertNull(result.getTag());
         assertTrue(result.getId() > 0);
         statIds.add(result.getId());
 
         // Find stats by tag
-        ImageStats[] results = given()
-                .when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/tag/" + myTag)
-                .body().as(ImageStats[].class);
+        ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
         assertEquals(2, results.length);
         for (ImageStats s : results) {
             assertEquals(myTag, s.getTag());
@@ -220,36 +202,29 @@ public class ImageStatsResourceTest {
         assertEquals(3, deletedIds.length);
 
         // no more image stats
-        given()
-                .when().header("token", token).get(StatsTestHelper.BASE_URL)
-                .then()
-                .statusCode(200)
-                .body(is("[]"));
+        given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
     }
 
     @Test
     public void testDistinctTags() throws Exception {
         String token = StatsTestHelper.login(Mode.READ_WRITE);
-        String[] myTags = new String[] {
-                "tag1", "tag2", "tag 3", null
-        };
+        String[] myTags = new String[] { "tag1", "tag2", "tag 3", null };
         List<ImageStats> stats = new ArrayList<>();
         // Add stats
         for (int i = 0; i < myTags.length; i++) {
             String statName = "image_name_" + i + "_" + myTags[i];
             ImageStats s = createImageStat(statName, myTags[i]);
             String json = toJsonString(s);
-            ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                    .when().post(StatsTestHelper.BASE_URL).body();
+            ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                    .post(StatsTestHelper.BASE_URL).body();
             ImageStats result = body.as(ImageStats.class);
             assertNotEquals(0, result.getId());
             stats.add(result);
         }
 
         // Find distinct tags
-        String[] results = given()
-                .when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/tags/distinct")
-                .body().as(String[].class);
+        String[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                .get(StatsTestHelper.BASE_URL + "/tags/distinct").body().as(String[].class);
         assertEquals(myTags.length, results.length);
         Set<String> resultsSet = new HashSet<>(Arrays.asList(results));
         for (int i = 0; i < myTags.length; i++) {
@@ -266,52 +241,50 @@ public class ImageStatsResourceTest {
                 .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
         assertEquals(4, deletedIds.length);
     }
-    
+
     @Test
     public void testUpdateBuildTime() throws Exception {
         long timeInMilis = 31700;
         String updateJson = String.format("{ \"total_time\": %s }", timeInMilis);
         doUpdateTest(updateJson, timeInMilis);
     }
-    
+
     private void doUpdateTest(String updateJSON, long expectedTimeMilis) throws Exception {
         String token = StatsTestHelper.login(Mode.READ_WRITE);
         ImageStats imageStats = createImageStat("build-time");
         BuildPerformanceStats perfStats = imageStats.getResourceStats();
         perfStats.setTotalTimeSeconds(-1);
         String json = toJsonString(imageStats);
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(StatsTestHelper.BASE_URL).body();
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL).body();
         ImageStats result = body.as(ImageStats.class);
         assertTrue(result.getId() > 0);
-        
+
         // Update build time
-        body = given().contentType(ContentType.JSON).header("token", token).body(updateJSON)
-                .when().put(StatsTestHelper.BASE_URL + "/" + result.getId()).body();
+        body = given().contentType(ContentType.JSON).header("token", token).body(updateJSON).when()
+                .put(StatsTestHelper.BASE_URL + "/" + result.getId()).body();
         ImageStats update = body.as(ImageStats.class);
         double buildTimeSec = update.getResourceStats().getTotalTimeSeconds();
         if (expectedTimeMilis > 0) {
             // Avoid precise floating point comparison for this test
-            double expectedSecs = ((double)expectedTimeMilis) / 1000;
-            long expectedTime = (long)Math.floor(expectedSecs);
+            double expectedSecs = ((double) expectedTimeMilis) / 1000;
+            long expectedTime = (long) Math.floor(expectedSecs);
             assertTrue(expectedTime < buildTimeSec);
             assertTrue(expectedTime + 1 > buildTimeSec);
         } else {
             assertTrue(0 > buildTimeSec);
         }
-        
+
         // Delete the created resource again
-        given().contentType(ContentType.JSON).header("token", token).when().delete(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
-            .statusCode(200).body(
-                    containsString(imageStats.getImageName()),
-                    containsString(imageStats.getGraalVersion()));
-        
+        given().contentType(ContentType.JSON).header("token", token).when()
+                .delete(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(200)
+                .body(containsString(imageStats.getImageName()), containsString(imageStats.getGraalVersion()));
+
         // Now list one should no longer find the resource
-        given().contentType(ContentType.JSON).header("token", token).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
-            .statusCode(204)
-            .body(is(""));
+        given().contentType(ContentType.JSON).header("token", token).when()
+                .get(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(204).body(is(""));
     }
-    
+
     @Test
     public void testUpdateBuildTimeZero() throws Exception {
         // total_time missing from JSON, thus no update expected.
@@ -329,7 +302,7 @@ public class ImageStatsResourceTest {
         if (tag != null) {
             imageStats.setTag(tag);
         }
-        ImageSizeStats sizeStats = new ImageSizeStats(1_000, 700, 200, 100, 100);
+        ImageSizeStats sizeStats = new ImageSizeStats(1_000, 700, 200, 100, 100, 100, 100);
         imageStats.setSizeStats(sizeStats);
         JNIAccessStats jniStats = new JNIAccessStats();
         jniStats.setNumClasses(100);
@@ -360,7 +333,7 @@ public class ImageStatsResourceTest {
         return imageStats;
     }
 
-    private static String toJsonString(Object imageStats) throws IOException, StreamWriteException, DatabindException {
+    public static String toJsonString(Object imageStats) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(baos, imageStats);

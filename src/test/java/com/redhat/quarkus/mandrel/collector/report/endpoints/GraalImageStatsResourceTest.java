@@ -45,43 +45,43 @@ import io.restassured.response.ResponseBody;
 public class GraalImageStatsResourceTest {
 
     private static final List<Long> idsToDelete = new ArrayList<>();
-    
+
     @BeforeAll
     public static void setup() {
         RestAssured.defaultParser = Parser.JSON;
     }
-    
+
     @Test
     public void testImport() throws Exception {
         String json = createGraalJSON();
         String token = StatsTestHelper.login(Mode.READ_WRITE);
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json)
-                .when().post(StatsTestHelper.BASE_URL + "/import").body();
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL + "/import").body();
         ImageStats result = body.as(ImageStats.class);
-        
+
         assertTrue(result.getId() > 0);
         assertEquals("foo-bar", result.getImageName());
         assertEquals("GraalVM 22.3.0-dev Java 11 Mandrel Distribution", result.getGraalVersion());
         idsToDelete.add(result.getId());
-        
+
         // Ensure we can listOne the result
-        given().contentType(ContentType.JSON).header("token", token).when().get(StatsTestHelper.BASE_URL + "/" + result.getId()).then()
-            .statusCode(200).body(
-                    containsString(result.getImageName()),
-                    containsString(result.getGraalVersion()));
+        given().contentType(ContentType.JSON).header("token", token).when()
+                .get(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(200)
+                .body(containsString(result.getImageName()), containsString(result.getGraalVersion()));
     }
-    
+
     @AfterEach
     public void delete() {
         // Delete the created resources again
         String token = StatsTestHelper.login(Mode.READ_WRITE);
-        for (Long id: idsToDelete) {
-            given().contentType(ContentType.JSON).header("token", token).when().delete(StatsTestHelper.BASE_URL + "/" + id).then()
-                .statusCode(200);
+        for (Long id : idsToDelete) {
+            given().contentType(ContentType.JSON).header("token", token).when()
+                    .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200);
         }
     }
 
     private String createGraalJSON() {
+        // @formatter:off
         return "{\n"
                 + "  \"resource_usage\": {\n"
                 + "    \"memory\": {\n"
@@ -142,7 +142,6 @@ public class GraalImageStatsResourceTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
+        // @formatter:on
     }
 }
-
-    

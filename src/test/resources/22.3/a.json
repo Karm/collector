@@ -1,0 +1,57 @@
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 33158926336,
+      "peak_rss_bytes": 7602569216
+    },
+    "garbage_collection": {
+      "count": 47,
+      "total_secs": 5.32
+    },
+    "cpu": {
+      "load": 7.869199827610975,
+      "total_cores": 12
+    }
+  },
+  "image_details": {
+    "code_area": {
+      "bytes": 37168992,
+      "compilation_units": 64488
+    },
+    "total_bytes": 76774160,
+    "image_heap": {
+      "bytes": 39268352,
+      "resources": {
+        "bytes": 423166,
+        "count": 29
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 8.5.0)",
+    "name": "q3-build-perf-karm-1.0.0-runner",
+    "java_version": "17.0.7+7",
+    "garbage_collector": "Serial GC",
+    "graalvm_version": "GraalVM 22.3.2.0-Final Java 17 Mandrel Distribution"
+  },
+  "analysis_results": {
+    "methods": {
+      "total": 183214,
+      "reflection": 4083,
+      "jni": 55,
+      "reachable": 100348
+    },
+    "classes": {
+      "total": 23547,
+      "reflection": 808,
+      "jni": 63,
+      "reachable": 21604
+    },
+    "fields": {
+      "total": 46239,
+      "reflection": 408,
+      "jni": 68,
+      "reachable": 29247
+    }
+  }
+}

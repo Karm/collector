@@ -23,7 +23,7 @@ package com.redhat.quarkus.mandrel.collector.report.model.graal;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class SizeableMetric {
-    
+
     @JsonProperty("bytes")
     private long bytes;
 

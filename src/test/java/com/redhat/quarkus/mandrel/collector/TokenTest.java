@@ -49,51 +49,31 @@ public class TokenTest {
     public void readOnlyToken() {
         final CookieFilter cookies = new CookieFilter();
         // Login
-        RestAssured.given()
-                .filter(cookies)
-                .contentType(ContentType.URLENC)
-                .body("j_username=user&j_password=This is my password.")
-                .post("/j_security_check").then().statusCode(HttpStatus.SC_OK);
+        RestAssured.given().filter(cookies).contentType(ContentType.URLENC)
+                .body("j_username=user&j_password=This is my password.").post("/j_security_check").then()
+                .statusCode(HttpStatus.SC_OK);
 
         // Generate a new read-only token
-        final String token = RestAssured.given()
-                .filter(cookies).when().post("/api/tokens/create/r").then()
+        final String token = RestAssured.given().filter(cookies).when().post("/api/tokens/create/r").then()
                 .statusCode(HttpStatus.SC_CREATED)
-                .body("message", containsString("Save the token safely. This is the only time"))
-                .extract().path("token");
+                .body("message", containsString("Save the token safely. This is the only time")).extract()
+                .path("token");
 
         // Use the token to read. Note there are no cookies.
-        RestAssured.given()
-                .accept(ContentType.JSON)
-                .header("token", token)
-                .get("/api/report/test")
-                .then()
-                .contentType(ContentType.JSON)
-                .statusCode(HttpStatus.SC_OK)
-                .body(containsString("test"));
+        RestAssured.given().accept(ContentType.JSON).header("token", token).get("/api/report/test").then()
+                .contentType(ContentType.JSON).statusCode(HttpStatus.SC_OK).body(containsString("test"));
 
         // Use the read-only token to write something
-        RestAssured.given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .header("token", token)
-                .body("{\"something\":\"hahaha\",\"data\":42}")
-                .post("/api/report/test")
-                .then()
+        RestAssured.given().accept(ContentType.JSON).contentType(ContentType.JSON).header("token", token)
+                .body("{\"something\":\"hahaha\",\"data\":42}").post("/api/report/test").then()
                 .statusCode(HttpStatus.SC_FORBIDDEN);
 
         // Revoke (delete) the token
-        RestAssured.given()
-                .filter(cookies).when().delete("/api/tokens/delete/" + token).then()
-                .statusCode(HttpStatus.SC_ACCEPTED)
-                .body("message", is("Deleted tokens: 1"));
+        RestAssured.given().filter(cookies).when().delete("/api/tokens/delete/" + token).then()
+                .statusCode(HttpStatus.SC_ACCEPTED).body("message", is("Deleted tokens: 1"));
 
         // See that token doesn't work. Note: When caching finally works, this test should IMHO fail...
-        RestAssured.given()
-                .accept(ContentType.JSON)
-                .header("token", token)
-                .get("/api/report/test")
-                .then()
+        RestAssured.given().accept(ContentType.JSON).header("token", token).get("/api/report/test").then()
                 .statusCode(HttpStatus.SC_UNAUTHORIZED);
     }
 }

@@ -54,7 +54,8 @@ public class TokenIdentityProvider implements IdentityProvider<TokenAuthenticati
     }
 
     @Override
-    public Uni<SecurityIdentity> authenticate(TokenAuthenticationRequest request, AuthenticationRequestContext context) {
+    public Uni<SecurityIdentity> authenticate(TokenAuthenticationRequest request,
+            AuthenticationRequestContext context) {
         return context.runBlocking(() -> {
             final Token t;
             final EntityManager em = entityManagerFactory.createEntityManager();
@@ -62,18 +63,17 @@ public class TokenIdentityProvider implements IdentityProvider<TokenAuthenticati
             ((org.hibernate.Session) em).setDefaultReadOnly(true);
             try {
 
-                t = em.createNamedQuery("findByHash", Token.class)
-                        .setParameter(1, hash(request.getToken().getToken()))
+                t = em.createNamedQuery("findByHash", Token.class).setParameter(1, hash(request.getToken().getToken()))
                         .getResultStream().findFirst().orElse(null);
 
                 /*
-                It seems the caching doesn't work. e.g. the execution count corresponds to the number requests,
-                although the hit count is always 0. It is a TODO.
-                final Statistics stats = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
-                Log.infof("getQueryExecutionCount: %d", stats.getQueryExecutionCount());
-                Log.infof("getQueryCacheHitCount: %d", stats.getQueryCacheHitCount());
-                Log.infof("getSecondLevelCacheHitCount: %d", stats.getSecondLevelCacheHitCount());
-                Log.infof("getSecondLevelCacheMissCount: %d", stats.getSecondLevelCacheMissCount());
+                 * It seems the caching doesn't work. e.g. the execution count corresponds to the number requests,
+                 * although the hit count is always 0. It is a TODO. final Statistics stats =
+                 * entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+                 * Log.infof("getQueryExecutionCount: %d", stats.getQueryExecutionCount());
+                 * Log.infof("getQueryCacheHitCount: %d", stats.getQueryCacheHitCount());
+                 * Log.infof("getSecondLevelCacheHitCount: %d", stats.getSecondLevelCacheHitCount());
+                 * Log.infof("getSecondLevelCacheMissCount: %d", stats.getSecondLevelCacheMissCount());
                  */
 
             } finally {
@@ -91,11 +91,8 @@ public class TokenIdentityProvider implements IdentityProvider<TokenAuthenticati
                     roles.add("token_write");
                 }
             }
-            return QuarkusSecurityIdentity.builder()
-                    .setPrincipal(new QuarkusPrincipal("token"))
-                    .addRoles(roles)
-                    .addCredential(request.getToken())
-                    .build();
+            return QuarkusSecurityIdentity.builder().setPrincipal(new QuarkusPrincipal("token")).addRoles(roles)
+                    .addCredential(request.getToken()).build();
         });
     }
 }

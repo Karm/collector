@@ -42,35 +42,16 @@ public class ReportResource {
      * Expect JSON, e.g.
      *
      * <p>
-     * {
-     * "arch": "amd64",
-     * "buildTimeS": 180,
-     * "classes": 100000,
-     * "classesForJNIAccess": 50000,
-     * "classesForReflection": 50000,
-     * "classesReachable": 80000,
-     * "executableSizeMB": 55,
-     * "fields": 100000,
-     * "fieldsForJNIAccess": 50000,
-     * "fieldsForReflection": 50000,
-     * "fieldsReachable": 80000,
-     * "jdkVersion": "11.0.15+10",
-     * "mandrelVersion": "22.1.0.0-Final",
-     * "methods": 100000,
-     * "methodsForJNIAccess": 50000,
-     * "methodsForReflection": 50000,
-     * "methodsReachable": 80000,
-     * "nativeImageXmXMB": 8000,
-     * "numberOfGC": 123,
-     * "os": "Linux",
-     * "peakRSSMB": 6860,
-     * "quarkusVersion": "2.8.3.Final",
-     * "ramAvailableMB": 14336,
-     * "timeInGCS": 23,
-     * "testApp": "...some URL including commit hash?"
-     * }
+     * { "arch": "amd64", "buildTimeS": 180, "classes": 100000, "classesForJNIAccess": 50000, "classesForReflection":
+     * 50000, "classesReachable": 80000, "executableSizeMB": 55, "fields": 100000, "fieldsForJNIAccess": 50000,
+     * "fieldsForReflection": 50000, "fieldsReachable": 80000, "jdkVersion": "11.0.15+10", "mandrelVersion":
+     * "22.1.0.0-Final", "methods": 100000, "methodsForJNIAccess": 50000, "methodsForReflection": 50000,
+     * "methodsReachable": 80000, "nativeImageXmXMB": 8000, "numberOfGC": 123, "os": "Linux", "peakRSSMB": 6860,
+     * "quarkusVersion": "2.8.3.Final", "ramAvailableMB": 14336, "timeInGCS": 23, "testApp": "...some URL including
+     * commit hash?" }
      *
      * @param timeAndSize
+     *
      * @return
      */
     @POST
@@ -98,7 +79,7 @@ public class ReportResource {
     @Path("/test")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    //@Transactional - when it does some writing...
+    // @Transactional - when it does some writing...
     public Response testReport(Report report) {
         return Response.status(Response.Status.CREATED).entity(report).build();
     }

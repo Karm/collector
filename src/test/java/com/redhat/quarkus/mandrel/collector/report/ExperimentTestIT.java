@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Collector project
+ * Copyright (c) 2023 Contributors to the Collector project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,32 +17,10 @@
  * limitations under the License.
  *
  */
+package com.redhat.quarkus.mandrel.collector.report;
 
-package com.redhat.quarkus.mandrel.collector.report.model.graal;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class CPUInfo {
-
-    @JsonProperty("total_cores")
-    private long coresTotal;
-
-    @JsonProperty("load")
-    private double cpuLoad;
-
-    public long getCoresTotal() {
-        return coresTotal;
-    }
-
-    public void setCoresTotal(long coresTotal) {
-        this.coresTotal = coresTotal;
-    }
-
-    public double getCpuLoad() {
-        return cpuLoad;
-    }
-
-    public void setCpuLoad(double cpuLoad) {
-        this.cpuLoad = cpuLoad;
-    }
+@QuarkusIntegrationTest
+public class ExperimentTestIT extends ExperimentTest {
 }

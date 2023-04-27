@@ -34,7 +34,7 @@ public class AnalysisResults {
     private ExecutableStats fieldStats;
     @JsonProperty("methods")
     private ExecutableStats methodStats;
-    
+
     public ExecutableStats getClassStats() {
         // Prefer newer type stats over older class stats
         if (typeStats != null) {
@@ -42,24 +42,31 @@ public class AnalysisResults {
         }
         return classStats;
     }
+
     public void setClassStats(ExecutableStats classStats) {
         this.classStats = classStats;
     }
+
     public ExecutableStats getTypeStats() {
         return typeStats;
     }
+
     public void setTypeStats(ExecutableStats typeStats) {
         this.typeStats = typeStats;
     }
+
     public ExecutableStats getFieldStats() {
         return fieldStats;
     }
+
     public void setFieldStats(ExecutableStats fieldStats) {
         this.fieldStats = fieldStats;
     }
+
     public ExecutableStats getMethodStats() {
         return methodStats;
     }
+
     public void setMethodStats(ExecutableStats methodStats) {
         this.methodStats = methodStats;
     }

@@ -44,7 +44,7 @@ public class PerfStatsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response timeAndSize(List<PerfStatStats> perfStatStats) {
-        //TODO: Is this idiomatic Panache?
+        // TODO: Is this idiomatic Panache?
         perfStatStats.forEach(stat -> stat.persist());
         // We might not want to spit it all right back, ...or?
         return Response.status(Response.Status.CREATED).entity(perfStatStats).build();

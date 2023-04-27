@@ -27,35 +27,45 @@ public class ResourceUsage {
     private static final double UNSET = -1;
     @JsonProperty("total_secs")
     private double totalTimeSecs;
+    @JsonProperty("memory")
     private MemoryInfo memory;
+    @JsonProperty("garbage_collection")
     private GCInfo gc;
+    @JsonProperty("cpu")
     private CPUInfo cpu;
-    
+
     public ResourceUsage() {
         this.totalTimeSecs = UNSET;
     }
-    
+
     public double getTotalTimeSecs() {
         return totalTimeSecs;
     }
+
     public void setTotalTimeSecs(double totalTimeSecs) {
         this.totalTimeSecs = totalTimeSecs;
     }
+
     public MemoryInfo getMemory() {
         return memory;
     }
+
     public void setMemory(MemoryInfo memory) {
         this.memory = memory;
     }
+
     public GCInfo getGc() {
         return gc;
     }
+
     public void setGc(GCInfo gc) {
         this.gc = gc;
     }
+
     public CPUInfo getCpu() {
         return cpu;
     }
+
     public void setCpu(CPUInfo cpu) {
         this.cpu = cpu;
     }

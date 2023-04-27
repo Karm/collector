@@ -38,21 +38,14 @@ import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.h
  * Basic DB backed homemade token. We might switch to JWT later if needed.
  */
 @Entity(name = "token")
-@Table(name = "token", indexes = {
-        @Index(columnList = "tokenHash")
-})
-@NamedQuery(
-        name = "findByHash",
-        query = "SELECT t from token t WHERE t.tokenHash = ?1",
+@Table(name = "token", indexes = { @Index(columnList = "tokenHash") })
+@NamedQuery(name = "findByHash", query = "SELECT t from token t WHERE t.tokenHash = ?1",
         // TODO: Test whether caching does what it seems to do.
         // So far, the DB is queried each time anyway :(
-        hints = {
-                @QueryHint(name = "org.hibernate.cacheable", value = "true"),
+        hints = { @QueryHint(name = "org.hibernate.cacheable", value = "true"),
                 @QueryHint(name = "org.hibernate.cacheMode", value = "GET"),
                 @QueryHint(name = "org.hibernate.cacheRegion", value = "Token"),
-                @QueryHint(name = "org.hibernate.readOnly", value = "true")
-        }
-)
+                @QueryHint(name = "org.hibernate.readOnly", value = "true") })
 public class Token extends PanacheEntity {
 
     @JsonIgnore
