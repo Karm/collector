@@ -37,7 +37,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "image_stats")
 @NamedQuery(name = "ImageStats.findAll", query = "SELECT s FROM ImageStats s ORDER BY s.imageName")
 @NamedQuery(name = "ImageStats.findByTag", query = "SELECT s FROM ImageStats s WHERE s.tag = :tag_name ORDER BY s.tag, s.imageName")
-@NamedQuery(name = "ImageStats.findByImageName", query = "SELECT s FROM ImageStats s WHERE s.imageName = :image_name ORDER BY s.tag, s.imageName")
+@NamedQuery(name = "ImageStats.findByImageName", query = "SELECT s FROM ImageStats s WHERE s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
 @NamedQuery(name = "ImageStats.distinctTags", query = "SELECT distinct s.tag FROM ImageStats s")
 public class ImageStats extends TimestampedEntity {
     @JsonProperty("tag")
