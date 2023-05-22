@@ -90,6 +90,7 @@ public class ImageStatsResource {
         final ImageStats[] s = collection.getAllByImageName(imageName);
         final Map<String, JsonArrayBuilder> nums = new TreeMap<>();
         nums.put("tag", Json.createArrayBuilder());
+        nums.put("created_at", Json.createArrayBuilder());
         nums.put("peak_rss_bytes", Json.createArrayBuilder());
         nums.put("gc_total_ms", Json.createArrayBuilder());
         nums.put("total_build_time_ms", Json.createArrayBuilder());
@@ -112,6 +113,7 @@ public class ImageStatsResource {
         nums.put("fields_reachable", Json.createArrayBuilder());
         for (ImageStats i : s) {
             nums.get("tag").add(i.getTag());
+            nums.get("created_at").add(i.getCreatedAt().toString());
             nums.get("peak_rss_bytes").add(i.getResourceStats().getPeakRSSBytes());
             nums.get("gc_total_ms").add((long) (i.getResourceStats().getGcTimeSeconds() * 1000));
             nums.get("total_build_time_ms").add((long) (i.getResourceStats().getTotalTimeSeconds() * 1000));
