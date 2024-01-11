@@ -38,7 +38,7 @@ jobs:
       - name: Package
         # We don't want the native executable to be built wth test profile (e.g. including superfluous test resources)
         run: >-
-          ./mvnw clean -Dui.deps -Dui verify -Pnative -Dquarkus-profile=test
+          ./mvnw clean -Dui.deps -Dui verify -Pnative -Dquarkus.profile=test
           -Dquarkus.native.container-build=true
           -Dquarkus.native.builder-image=${BUILDER_IMAGE} &&
           ./mvnw -Dui.deps -Dui package -DskipTests -Pnative

@@ -20,7 +20,6 @@
 package com.redhat.quarkus.mandrel.collector.access.auth;
 
 import com.redhat.quarkus.mandrel.collector.access.model.Token;
-import io.quarkus.arc.Priority;
 import io.quarkus.security.AuthenticationFailedException;
 import io.quarkus.security.identity.AuthenticationRequestContext;
 import io.quarkus.security.identity.IdentityProvider;
@@ -29,13 +28,14 @@ import io.quarkus.security.identity.request.TokenAuthenticationRequest;
 import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.security.runtime.QuarkusSecurityIdentity;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.interceptor.Interceptor;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnit;
 import org.hibernate.FlushMode;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.interceptor.Interceptor;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,9 +59,9 @@ public class TokenIdentityProvider implements IdentityProvider<TokenAuthenticati
         return context.runBlocking(() -> {
             final Token t;
             final EntityManager em = entityManagerFactory.createEntityManager();
-            ((org.hibernate.Session) em).setHibernateFlushMode(FlushMode.MANUAL);
-            ((org.hibernate.Session) em).setDefaultReadOnly(true);
-            try {
+            try (em) {
+                ((org.hibernate.Session) em).setHibernateFlushMode(FlushMode.MANUAL);
+                ((org.hibernate.Session) em).setDefaultReadOnly(true);
 
                 t = em.createNamedQuery("findByHash", Token.class).setParameter(1, hash(request.getToken().getToken()))
                         .getResultStream().findFirst().orElse(null);
@@ -76,8 +76,6 @@ public class TokenIdentityProvider implements IdentityProvider<TokenAuthenticati
                  * Log.infof("getSecondLevelCacheMissCount: %d", stats.getSecondLevelCacheMissCount());
                  */
 
-            } finally {
-                em.close();
             }
             if (t == null) {
                 throw new AuthenticationFailedException("Token is invalid.");

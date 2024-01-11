@@ -21,8 +21,8 @@ package com.redhat.quarkus.mandrel.collector.access.auth;
 
 import com.redhat.quarkus.mandrel.collector.access.model.Token;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

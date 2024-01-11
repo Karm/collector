@@ -20,10 +20,11 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,6 +60,10 @@ public class ImageStatsCollection {
 
     public String[] getDistinctTags() {
         return em.createNamedQuery("ImageStats.distinctTags", String.class).getResultList().toArray(new String[0]);
+    }
+
+    public String[] getDistinctImageNames() {
+        return em.createNamedQuery("ImageStats.distinctImageNames", String.class).getResultList().toArray(new String[0]);
     }
 
     public ImageStats getSingle(long id) {

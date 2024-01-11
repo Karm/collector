@@ -33,32 +33,32 @@ import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
 public class StatsAdapter {
 
     public ImageStats adapt(GraalStats graalStat) {
-        ImageStats stats = new ImageStats(graalStat.getGenInfo().getName());
+        final ImageStats stats = new ImageStats(graalStat.getGenInfo().getName());
         stats.setGraalVersion(graalStat.getGenInfo().getGraalVersion());
-        JNIAccessStats jni = new JNIAccessStats();
+        final JNIAccessStats jni = new JNIAccessStats();
         jni.setNumClasses(graalStat.getAnalysisResults().getClassStats().getJni());
         jni.setNumMethods(graalStat.getAnalysisResults().getMethodStats().getJni());
         jni.setNumFields(graalStat.getAnalysisResults().getFieldStats().getJni());
         stats.setJniStats(jni);
-        TotalClassesStats total = new TotalClassesStats();
+        final TotalClassesStats total = new TotalClassesStats();
         total.setNumClasses(graalStat.getAnalysisResults().getClassStats().getTotal());
         total.setNumFields(graalStat.getAnalysisResults().getFieldStats().getTotal());
         total.setNumMethods(graalStat.getAnalysisResults().getMethodStats().getTotal());
         stats.setTotalStats(total);
-        ReflectionRegistrationStats ref = new ReflectionRegistrationStats();
+        final ReflectionRegistrationStats ref = new ReflectionRegistrationStats();
         ref.setNumClasses(graalStat.getAnalysisResults().getClassStats().getReflection());
         ref.setNumMethods(graalStat.getAnalysisResults().getMethodStats().getReflection());
         ref.setNumFields(graalStat.getAnalysisResults().getFieldStats().getReflection());
         stats.setReflectionStats(ref);
-        ReachableImageStats reach = new ReachableImageStats();
+        final ReachableImageStats reach = new ReachableImageStats();
         reach.setNumClasses(graalStat.getAnalysisResults().getClassStats().getReachable());
         reach.setNumMethods(graalStat.getAnalysisResults().getMethodStats().getReachable());
         reach.setNumFields(graalStat.getAnalysisResults().getFieldStats().getReachable());
         stats.setReachableStats(reach);
 
-        ImageSizeStats size = new ImageSizeStats();
+        final ImageSizeStats size = new ImageSizeStats();
         size.setCodeCacheSize(graalStat.getImageDetails().getCodeArea().getBytes());
-        DebugInfo debugInfo = graalStat.getImageDetails().getDebugInfo();
+        final DebugInfo debugInfo = graalStat.getImageDetails().getDebugInfo();
         if (debugInfo != null) {
             size.setDebuginfoSize(debugInfo.getBytes());
         }
@@ -69,13 +69,13 @@ public class StatsAdapter {
         size.setResourcesCount(graalStat.getImageDetails().getImageHeap().getResources().getCount());
         stats.setSizeStats(size);
 
-        BuildPerformanceStats perfStats = new BuildPerformanceStats();
+        final BuildPerformanceStats perfStats = new BuildPerformanceStats();
         perfStats.setBuilderCpuLoad(graalStat.getResourceUsage().getCpu().getCpuLoad());
         perfStats.setBuilderMachineMemTotal(graalStat.getResourceUsage().getMemory().getMachineTotal());
         perfStats.setNumCpuCores(graalStat.getResourceUsage().getCpu().getCoresTotal());
         perfStats.setPeakRSSBytes(graalStat.getResourceUsage().getMemory().getPeakRSS());
         // Schema 0.9.1 added total time to the graal stats
-        double totalTimeSec = graalStat.getResourceUsage().getTotalTimeSecs();
+        final double totalTimeSec = graalStat.getResourceUsage().getTotalTimeSecs();
         if (totalTimeSec > 0) {
             perfStats.setTotalTimeSeconds(totalTimeSec);
         } else {
@@ -84,7 +84,7 @@ public class StatsAdapter {
             // of api/v1/image-stats/<id>
             perfStats.setTotalTimeSeconds(-1);
         }
-        double gcTimeSec = graalStat.getResourceUsage().getGc().getTotalSecs();
+        final double gcTimeSec = graalStat.getResourceUsage().getGc().getTotalSecs();
         if (gcTimeSec > 0) {
             perfStats.setGcTimeSeconds(gcTimeSec);
         } else {
@@ -98,13 +98,15 @@ public class StatsAdapter {
     }
 
     private long calculateOtherSize(GraalStats graalStat) {
-        long total = graalStat.getImageDetails().getSizeBytes();
-        long heap = graalStat.getImageDetails().getImageHeap().getBytes();
-        long code = graalStat.getImageDetails().getCodeArea().getBytes();
-        long debugInfo = 0;
-        DebugInfo debugInfoObject = graalStat.getImageDetails().getDebugInfo();
+        final long total = graalStat.getImageDetails().getSizeBytes();
+        final long heap = graalStat.getImageDetails().getImageHeap().getBytes();
+        final long code = graalStat.getImageDetails().getCodeArea().getBytes();
+        final long debugInfo;
+        final DebugInfo debugInfoObject = graalStat.getImageDetails().getDebugInfo();
         if (debugInfoObject != null) {
             debugInfo = debugInfoObject.getBytes();
+        } else {
+            debugInfo = 0;
         }
         return total - heap - code - debugInfo;
     }

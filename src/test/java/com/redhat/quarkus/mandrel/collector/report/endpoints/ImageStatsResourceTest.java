@@ -20,8 +20,6 @@
 
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.quarkus.mandrel.collector.report.endpoints.StatsTestHelper.Mode;
 import com.redhat.quarkus.mandrel.collector.report.model.BuildPerformanceStats;

@@ -25,28 +25,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -149,6 +149,13 @@ public class ImageStatsResource {
         return collection.getDistinctTags();
     }
 
+    @RolesAllowed("token_read")
+    @GET
+    @Path("image-names/distinct")
+    public String[] getDistinctImageNames() {
+        return collection.getDistinctImageNames();
+    }
+
     @RolesAllowed("token_write")
     @POST
     public ImageStats add(ImageStats stat, @QueryParam("t") String tag) {
@@ -165,7 +172,11 @@ public class ImageStatsResource {
     @PUT
     @Path("{statId:\\d+}")
     public ImageStats updateBuildTime(@PathParam("statId") Long statId, GraalBuildInfo info) {
-        ImageStats stat = collection.updateBuildTime(statId, info.getTotalBuildTimeMilis());
+        if (info == null) {
+            throw new WebApplicationException("GraalBuildInfo for statId " + statId + " must not be null",
+                    Status.INTERNAL_SERVER_ERROR);
+        }
+        final ImageStats stat = collection.updateBuildTime(statId, info.getTotalBuildTimeMilis());
         if (stat == null) {
             throw new WebApplicationException("Stat with id " + statId + " not found", Status.NOT_FOUND);
         }

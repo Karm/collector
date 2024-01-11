@@ -20,18 +20,17 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "image_stats")
@@ -39,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @NamedQuery(name = "ImageStats.findByTag", query = "SELECT s FROM ImageStats s WHERE s.tag = :tag_name ORDER BY s.tag, s.imageName")
 @NamedQuery(name = "ImageStats.findByImageName", query = "SELECT s FROM ImageStats s WHERE s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
 @NamedQuery(name = "ImageStats.distinctTags", query = "SELECT distinct s.tag FROM ImageStats s")
+@NamedQuery(name = "ImageStats.distinctImageNames", query = "SELECT distinct s.imageName FROM ImageStats s ORDER BY s.createdAt DESC")
 public class ImageStats extends TimestampedEntity {
     @JsonProperty("tag")
     @Column(name = "tag_name", nullable = true)

@@ -70,6 +70,12 @@ public class ExperimentTest {
             assertEquals("[5320,4962]", result.get("gc_total_ms").toString(), "gc_total_ms");
             assertEquals("[110781,112053]", result.get("total_build_time_ms").toString(), "total_build_time_ms");
 
+            // List image names
+            final String[] imageNames = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/image-names/distinct").body()
+                    .as(String[].class);
+            assertEquals("q3-build-perf-karm-1.0.0-runner", imageNames[0]);
+
         } finally {
             if (!ids.isEmpty()) {
                 given().contentType(ContentType.JSON).header("token", token)
