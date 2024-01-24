@@ -63,6 +63,8 @@ public class TestUtil {
             Pattern.compile(".*Unknown SEQUENCE: 'quarkus.simple_time_and_size_SEQ'.*"),
             Pattern.compile(".*Unknown SEQUENCE: 'quarkus.token_SEQ'.*"),
             Pattern.compile(".*Unknown SEQUENCE: 'quarkus.user_SEQ'.*"),
+            // Quarkus deprecated, we need to deal wit it:
+            Pattern.compile(".*'quarkus.http.auth.form.redirect-after-login' config property is deprecated.*"),
     };
 
     public static Matcher parseLog(final Pattern lineMatchRegexp) {
