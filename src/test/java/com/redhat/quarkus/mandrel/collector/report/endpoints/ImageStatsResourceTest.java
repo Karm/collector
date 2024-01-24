@@ -20,9 +20,8 @@
 
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redhat.quarkus.mandrel.collector.TestUtil;
 import com.redhat.quarkus.mandrel.collector.report.endpoints.StatsTestHelper.Mode;
 import com.redhat.quarkus.mandrel.collector.report.model.BuildPerformanceStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageSizeStats;
@@ -68,10 +67,11 @@ public class ImageStatsResourceTest {
     }
 
     @Test
-    public void testListEmpty() {
+    public void testListEmpty() throws IOException {
         String token = StatsTestHelper.login(Mode.READ);
         given().when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL).then()
                 .statusCode(200).body(is("[]"));
+        TestUtil.checkLog();
     }
 
     @Test

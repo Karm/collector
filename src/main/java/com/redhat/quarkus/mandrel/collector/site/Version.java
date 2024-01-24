@@ -20,9 +20,9 @@
 package com.redhat.quarkus.mandrel.collector.site;
 
 import io.quarkus.logging.Log;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;

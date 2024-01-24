@@ -23,10 +23,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
+import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import static com.redhat.quarkus.mandrel.collector.TestUtil.parseLog;
@@ -48,15 +50,17 @@ public class AuthTest {
     }
 
     @Test
-    public void adminLogin() {
+    public void adminLogin() throws IOException {
         final CookieFilter cookies = new CookieFilter();
         // Login
         RestAssured.given().filter(cookies).contentType(ContentType.URLENC)
                 .body("j_username=admin&j_password=This is my password.").post("/j_security_check").then()
+                .log().everything()
                 .statusCode(HttpStatus.SC_OK);
         // Authenticated request, authorized with the role admin
         RestAssured.given().filter(cookies).when().get("/api/admin/me").then().body(is("admin"))
                 .statusCode(HttpStatus.SC_OK);
+        TestUtil.checkLog();
     }
 
     @Test

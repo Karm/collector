@@ -18,7 +18,7 @@ on:
 
 env:
   LANG: en_US.UTF-8
-  BUILDER_IMAGE: quay.io/quarkus/ubi-quarkus-mandrel-builder-image:22.3-java17
+  BUILDER_IMAGE: quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21
 
 jobs:
   run-units:
@@ -50,7 +50,7 @@ jobs:
           java-version: 17
       - name: Test
         run: >-
-          ./mvnw -Dui.deps -Dui clean verify -Pnative -Dquarkus-profile=test
+          ./mvnw -Dui.deps -Dui clean verify -Pnative -Dquarkus.profile=test
           -Dquarkus.native.container-build=true
           -Dquarkus.native.builder-image=${BUILDER_IMAGE}
       - uses: actions/upload-artifact@v3

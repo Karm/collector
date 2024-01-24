@@ -25,9 +25,11 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.redhat.quarkus.mandrel.collector.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -68,6 +70,7 @@ public class GraalImageStatsResourceTest {
         given().contentType(ContentType.JSON).header("token", token).when()
                 .get(StatsTestHelper.BASE_URL + "/" + result.getId()).then().statusCode(200)
                 .body(containsString(result.getImageName()), containsString(result.getGraalVersion()));
+        TestUtil.checkLog();
     }
 
     @AfterEach

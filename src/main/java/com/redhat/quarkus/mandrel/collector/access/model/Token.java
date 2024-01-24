@@ -19,18 +19,16 @@
  */
 package com.redhat.quarkus.mandrel.collector.access.model;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Index;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.QueryHint;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.QueryHint;
+import jakarta.persistence.Table;
 
 import static com.redhat.quarkus.mandrel.collector.access.auth.TokenRepository.hash;
 

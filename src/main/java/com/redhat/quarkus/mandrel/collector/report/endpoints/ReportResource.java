@@ -21,16 +21,15 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
 import com.redhat.quarkus.mandrel.collector.report.model.Report;
 import com.redhat.quarkus.mandrel.collector.report.model.SimpleTimeAndSize;
-
-import javax.annotation.security.RolesAllowed;
-import javax.transaction.Transactional;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
  * DEMO for testing...
@@ -40,18 +39,38 @@ public class ReportResource {
 
     /**
      * Expect JSON, e.g.
-     *
      * <p>
-     * { "arch": "amd64", "buildTimeS": 180, "classes": 100000, "classesForJNIAccess": 50000, "classesForReflection":
-     * 50000, "classesReachable": 80000, "executableSizeMB": 55, "fields": 100000, "fieldsForJNIAccess": 50000,
-     * "fieldsForReflection": 50000, "fieldsReachable": 80000, "jdkVersion": "11.0.15+10", "mandrelVersion":
-     * "22.1.0.0-Final", "methods": 100000, "methodsForJNIAccess": 50000, "methodsForReflection": 50000,
-     * "methodsReachable": 80000, "nativeImageXmXMB": 8000, "numberOfGC": 123, "os": "Linux", "peakRSSMB": 6860,
-     * "quarkusVersion": "2.8.3.Final", "ramAvailableMB": 14336, "timeInGCS": 23, "testApp": "...some URL including
-     * commit hash?" }
-     *
+     * //@formatter:off
+     * {
+     *   "arch": "amd64",
+     *   "buildTimeS": 180,
+     *   "classes": 100000,
+     *   "classesForJNIAccess": 50000,
+     *   "classesForReflection": 50000,
+     *   "classesReachable": 80000,
+     *   "executableSizeMB": 55,
+     *   "fields": 100000,
+     *   "fieldsForJNIAccess": 50000,
+     *   "fieldsForReflection": 50000,
+     *   "fieldsReachable": 80000,
+     *   "jdkVersion": "11.0.15+10",
+     *   "mandrelVersion": "22.1.0.0-Final",
+     *   "methods": 100000,
+     *   "methodsForJNIAccess": 50000,
+     *   "methodsForReflection": 50000,
+     *   "methodsReachable": 80000,
+     *   "nativeImageXmXMB": 8000,
+     *   "numberOfGC": 123,
+     *   "os": "Linux",
+     *   "peakRSSMB": 6860,
+     *   "quarkusVersion": "2.8.3.Final",
+     *   "ramAvailableMB": 14336,
+     *   "timeInGCS": 23,
+     *   "testApp": "...some URL including commit hash?"
+     * }
+     * //@formatter:on
+     * </p>
      * @param timeAndSize
-     *
      * @return
      */
     @POST

@@ -4,14 +4,15 @@ import com.redhat.quarkus.mandrel.collector.report.adapter.StatsAdapter;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
-
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response.Status;
 
 @ApplicationScoped
 @Path("api/v1/image-stats")
@@ -29,8 +30,11 @@ public class GraalImageStatsResource {
     @RolesAllowed("token_write")
     @Path("import")
     @POST
-    public ImageStats importStat(GraalStats importStat, @QueryParam("t") String tag) {
-        ImageStats stat = ADAPTER.adapt(importStat);
+    public ImageStats importStat(GraalStats importStat, @QueryParam("t") String tag) throws WebApplicationException {
+        if (importStat == null) {
+            throw new WebApplicationException("GraalStats must not be null", Status.INTERNAL_SERVER_ERROR);
+        }
+        final ImageStats stat = ADAPTER.adapt(importStat);
         if (tag != null) {
             stat.setTag(tag);
         }

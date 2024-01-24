@@ -85,6 +85,10 @@ $ curl -s https://stage-collector.foci.life/public/version
 1.0.0-6-g7d663ea
 ```
 
+## Podman
+
+Having trouble with TestContainers and Podman? Take a look: https://quarkus.io/blog/quarkus-devservices-testcontainers-podman/
+
 # Angular UI development
 
 ## Prerequisites

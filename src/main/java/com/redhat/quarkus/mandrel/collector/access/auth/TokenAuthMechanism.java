@@ -20,7 +20,6 @@
 package com.redhat.quarkus.mandrel.collector.access.auth;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.quarkus.arc.Priority;
 import io.quarkus.security.credential.TokenCredential;
 import io.quarkus.security.identity.IdentityProviderManager;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -30,9 +29,10 @@ import io.quarkus.vertx.http.runtime.security.ChallengeData;
 import io.quarkus.vertx.http.runtime.security.HttpAuthenticationMechanism;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.interceptor.Interceptor;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.interceptor.Interceptor;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;

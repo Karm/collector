@@ -20,23 +20,21 @@
 
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
+import io.restassured.RestAssured;
+import io.restassured.filter.cookie.CookieFilter;
+import io.restassured.http.ContentType;
+import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.http.HttpStatus;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
-
-import io.restassured.RestAssured;
-import io.restassured.filter.cookie.CookieFilter;
-import io.restassured.http.ContentType;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 
 public class StatsTestHelper {
 
@@ -48,7 +46,7 @@ public class StatsTestHelper {
         READ_WRITE("rw"),
         WRITE("w");
 
-        private String mode;
+        private final String mode;
 
         private Mode(String mode) {
             this.mode = mode;

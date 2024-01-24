@@ -20,15 +20,14 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
-import java.util.Date;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+
+import java.util.Date;
 
 @MappedSuperclass
 public abstract class TimestampedEntity {
