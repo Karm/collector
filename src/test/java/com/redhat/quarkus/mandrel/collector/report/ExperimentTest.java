@@ -20,10 +20,12 @@
 package com.redhat.quarkus.mandrel.collector.report;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.quarkus.mandrel.collector.TestUtil;
 import com.redhat.quarkus.mandrel.collector.report.endpoints.StatsTestHelper;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -75,7 +77,7 @@ public class ExperimentTest {
                     .get(StatsTestHelper.BASE_URL + "/image-names/distinct").body()
                     .as(String[].class);
             assertEquals("q3-build-perf-karm-1.0.0-runner", imageNames[0]);
-
+            TestUtil.checkLog();
         } finally {
             if (!ids.isEmpty()) {
                 given().contentType(ContentType.JSON).header("token", token)

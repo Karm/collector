@@ -112,7 +112,7 @@ public class ImageStatsResource {
         nums.put("fields_jni", Json.createArrayBuilder());
         nums.put("fields_reachable", Json.createArrayBuilder());
         for (ImageStats i : s) {
-            nums.get("tag").add(i.getTag());
+            nums.get("tag").add(i.getTag() == null ? "" : i.getTag());
             nums.get("created_at").add(i.getCreatedAt().toString());
             nums.get("peak_rss_bytes").add(i.getResourceStats().getPeakRSSBytes());
             nums.get("gc_total_ms").add((long) (i.getResourceStats().getGcTimeSeconds() * 1000));

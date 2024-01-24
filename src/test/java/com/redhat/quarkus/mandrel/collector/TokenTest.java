@@ -25,7 +25,10 @@ import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -45,7 +48,7 @@ public class TokenTest {
     }
 
     @Test
-    public void readOnlyToken() {
+    public void readOnlyToken() throws IOException {
         final CookieFilter cookies = new CookieFilter();
         // Login
         RestAssured.given().filter(cookies).contentType(ContentType.URLENC)
@@ -74,5 +77,7 @@ public class TokenTest {
         // See that token doesn't work. Note: When caching finally works, this test should IMHO fail...
         RestAssured.given().accept(ContentType.JSON).header("token", token).get("/api/report/test").then()
                 .statusCode(HttpStatus.SC_UNAUTHORIZED);
+
+        TestUtil.checkLog();
     }
 }

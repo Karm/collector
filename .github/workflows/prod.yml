@@ -1,11 +1,9 @@
-name: https://stage-collector.foci.life/
+name: https://collector.foci.life
 
-concurrency: stage
+concurrency: prod
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 env:
   LANG: en_US.UTF-8
@@ -14,7 +12,7 @@ env:
 jobs:
   deployment:
     runs-on: ubuntu-20.04
-    environment: stage
+    environment: prod
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,7 +40,7 @@ jobs:
           -Dquarkus.native.container-build=true
           -Dquarkus.native.builder-image=${BUILDER_IMAGE} &&
           ./mvnw -Dui.deps -Dui package -DskipTests -Pnative
-          -Dquarkus.native.container-build=true
+          -Dquarkus.native.container-build=true -Dquarkus.profile=prod
           -Dquarkus.native.builder-image=${BUILDER_IMAGE}
       - name: Deploy
         if: success()
@@ -53,9 +51,9 @@ jobs:
           echo "$KNOWN_HOSTS" > ~/known_hosts
           eval $(ssh-agent)
           ssh-add - <<< "$SSH_KEY"
-          scp -o UserKnownHostsFile=~/known_hosts ./target/collector-*-runner collector@${{ secrets.SERVER_ADDRESS }}:/home/collector/stage/collector.deploy
-          ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl restart stage-collector.foci.life"
-          echo "Version $(git describe --tags --always) should be on https://stage-collector.foci.life/"
+          scp -o UserKnownHostsFile=~/known_hosts ./target/collector-*-runner collector@${{ secrets.SERVER_ADDRESS }}:/home/collector/prod/collector.deploy
+          ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl restart collector.foci.life"
+          echo "Version $(git describe --tags --always) should be on https://collector.foci.life/"
       - uses: actions/upload-artifact@v3
         if: always()
         with:
