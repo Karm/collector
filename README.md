@@ -1,5 +1,8 @@
 # Collector
 
+[![https://collector.foci.life](https://github.com/Karm/collector/actions/workflows/prod.yml/badge.svg)](https://github.com/Karm/collector/actions/workflows/prod.yml)
+[![https://stage-collector.foci.life/](https://github.com/Karm/collector/actions/workflows/stage.yml/badge.svg?branch=main)](https://github.com/Karm/collector/actions/workflows/stage.yml)
+
 # Usage (stage)
 The staging system is a place that could randomly get re-deployed, removed or that could have its data erased.
 
@@ -85,9 +88,47 @@ $ curl -s https://stage-collector.foci.life/public/version
 1.0.0-6-g7d663ea
 ```
 
+The prod environment is deployed manually by running the [prod](https://github.com/Karm/collector/actions/workflows/prod.yml) workflow, and it appears on https://collector.foci.life/.
+
 ## Podman
 
 Having trouble with TestContainers and Podman? Take a look: https://quarkus.io/blog/quarkus-devservices-testcontainers-podman/
+
+## Systemd
+
+The server is controlled by systemd, e.g. in this way:
+
+```
+[Unit]
+Description=Collector stage instance
+After=network-online.target firewalld.service mariadb.service
+Wants=network-online.target mariadb.service
+[Service]
+Restart=on-failure
+User=collector
+Type=simple
+WorkingDirectory=/home/collector/stage
+ExecStartPre=-/bin/bash -c 'mv /home/collector/stage/collector.deploy /home/collector/stage/collector'
+ExecStart=/home/collector/stage/collector -Dquarkus.profile=stage
+ExecStop=/bin/kill -2 $MAINPID
+[Install]
+WantedBy=multi-user.target
+```
+
+Passwords are loaded from a `.env` file, e.g.:
+
+```
+_PROD_QUARKUS_DATASOURCE_USERNAME=????
+_PROD_QUARKUS_DATASOURCE_PASSWORD=????
+_STAGE_QUARKUS_DATASOURCE_USERNAME=????
+_STAGE_QUARKUS_DATASOURCE_PASSWORD=????
+_STAGE_QUARKUS_HTTP_PORT=????
+_PROD_QUARKUS_HTTP_PORT=????
+QUARKUS_HTTP_HOST=????
+QUARKUS_HTTP_AUTH_SESSION_ENCRYPTION_KEY=????
+QUARKUS_MAILER_USERNAME=????
+QUARKUS_MAILER_PASSWORD=????
+```
 
 # Angular UI development
 
