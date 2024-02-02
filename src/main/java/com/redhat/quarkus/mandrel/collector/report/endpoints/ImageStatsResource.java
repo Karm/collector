@@ -152,8 +152,15 @@ public class ImageStatsResource {
     @RolesAllowed("token_read")
     @GET
     @Path("image-names/distinct")
-    public String[] getDistinctImageNames() {
+    public Map<Long, String> getDistinctImageNames() {
         return collection.getDistinctImageNames();
+    }
+
+    @RolesAllowed("token_read")
+    @GET
+    @Path("image-names/distinct/{keyword}")
+    public Map<Long, String> getDistinctImageNames(@PathParam("keyword") String keyword) {
+        return collection.getDistinctImageNames(keyword);
     }
 
     @RolesAllowed("token_write")

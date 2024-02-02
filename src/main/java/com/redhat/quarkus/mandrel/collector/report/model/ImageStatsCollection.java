@@ -23,16 +23,17 @@ package com.redhat.quarkus.mandrel.collector.report.model;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class ImageStatsCollection {
-
-    private static final String TAG_PARAM = "tag_name";
 
     @Inject
     EntityManager em;
@@ -49,7 +50,7 @@ public class ImageStatsCollection {
     }
 
     public ImageStats[] getAllByTag(String tag) {
-        return em.createNamedQuery("ImageStats.findByTag", ImageStats.class).setParameter(TAG_PARAM, tag)
+        return em.createNamedQuery("ImageStats.findByTag", ImageStats.class).setParameter("tag_name", tag)
                 .getResultList().toArray(new ImageStats[0]);
     }
 
@@ -62,8 +63,15 @@ public class ImageStatsCollection {
         return em.createNamedQuery("ImageStats.distinctTags", String.class).getResultList().toArray(new String[0]);
     }
 
-    public String[] getDistinctImageNames() {
-        return em.createNamedQuery("ImageStats.distinctImageNames", String.class).getResultList().toArray(new String[0]);
+    public Map<Long, String> getDistinctImageNames() {
+        return em.createNamedQuery("ImageStats.distinctImageNames", Tuple.class).getResultList().stream()
+                .collect(HashMap::new, (m, t) -> m.put(t.get(1, Long.class), t.get(0, String.class)), HashMap::putAll);
+    }
+
+    public Map<Long, String> getDistinctImageNames(String keyword) {
+        return em.createNamedQuery("ImageStats.distinctImageNamesByKeyword", Tuple.class).setParameter("keyword", keyword)
+                .getResultList().stream()
+                .collect(HashMap::new, (m, t) -> m.put(t.get(1, Long.class), t.get(0, String.class)), HashMap::putAll);
     }
 
     public ImageStats getSingle(long id) {
@@ -90,14 +98,13 @@ public class ImageStatsCollection {
 
     @Transactional
     public ImageStats updateBuildTime(long id, long buildTimeMilis) {
-        ImageStats stat = getSingle(id);
+        final ImageStats stat = getSingle(id);
         if (stat == null) {
             return null;
         }
         if (buildTimeMilis != 0) {
-            BuildPerformanceStats perfStats = stat.getResourceStats();
-            double buildTimeSec = ((double) buildTimeMilis) / 1000;
-            perfStats.setTotalTimeSeconds(buildTimeSec);
+            final BuildPerformanceStats perfStats = stat.getResourceStats();
+            perfStats.setTotalTimeSeconds(((double) buildTimeMilis) / 1000);
         }
         return stat;
     }

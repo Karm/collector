@@ -34,11 +34,26 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "image_stats")
-@NamedQuery(name = "ImageStats.findAll", query = "SELECT s FROM ImageStats s ORDER BY s.imageName")
-@NamedQuery(name = "ImageStats.findByTag", query = "SELECT s FROM ImageStats s WHERE s.tag = :tag_name ORDER BY s.tag, s.imageName")
-@NamedQuery(name = "ImageStats.findByImageName", query = "SELECT s FROM ImageStats s WHERE s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
-@NamedQuery(name = "ImageStats.distinctTags", query = "SELECT distinct s.tag FROM ImageStats s")
-@NamedQuery(name = "ImageStats.distinctImageNames", query = "SELECT distinct s.imageName FROM ImageStats s ORDER BY s.createdAt DESC")
+//@formatter:off
+@NamedQuery(name = "ImageStats.findAll",
+        query = "SELECT s FROM ImageStats s ORDER BY s.imageName")
+@NamedQuery(name = "ImageStats.findByTag",
+        query = "SELECT s FROM ImageStats s WHERE s.tag = :tag_name ORDER BY s.tag, s.imageName")
+@NamedQuery(name = "ImageStats.findByImageName",
+        query = "SELECT s FROM ImageStats s "
+                + "WHERE s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
+@NamedQuery(name = "ImageStats.distinctTags",
+        query = "SELECT distinct s.tag FROM ImageStats s")
+/*
+ * We want only distinct experiment names. The ID printed alongside with it is just the ID of
+ * the latest recorded occurrence of such experiment. It facilitates communication with UI.
+ */
+@NamedQuery(name = "ImageStats.distinctImageNames",
+        query = "SELECT s.imageName, MAX(s.id) AS id FROM ImageStats s GROUP BY s.imageName ORDER BY s.imageName DESC")
+@NamedQuery(name = "ImageStats.distinctImageNamesByKeyword",
+        query = "SELECT s.imageName, MAX(s.id) AS id FROM ImageStats s WHERE "
+                + "s.imageName LIKE CONCAT('%',:keyword,'%') GROUP BY s.imageName ORDER BY s.imageName DESC")
+//@formatter:on
 public class ImageStats extends TimestampedEntity {
     @JsonProperty("tag")
     @Column(name = "tag_name", nullable = true)
@@ -110,6 +125,7 @@ public class ImageStats extends TimestampedEntity {
         this.reachableStats = reachableStats;
     }
 
+    // Hibernate needs this
     public ImageStats() {
         // default constructor
     }
