@@ -94,6 +94,24 @@ The prod environment is deployed manually by running the [prod](https://github.c
 
 Having trouble with TestContainers and Podman? Take a look: https://quarkus.io/blog/quarkus-devservices-testcontainers-podman/
 
+## Development
+
+Live-reload dev mode:
+```
+./mvnw clean quarkus:dev
+```
+
+How to store a DB dump, if you need to:
+```
+mysqldump --lock-all-tables --routines --add-drop-table --disable-keys --extended-insert \
+  --events -u root -p --host=127.0.0.1 --port=49158 stage_collector > stage_collector.dump
+```
+
+How to load your local DB dump if you want to:
+```
+mysql -u root -p --host=127.0.0.1 --port=49158 quarkus < stage_collector.dump
+```
+
 ## Systemd
 
 The server is controlled by systemd, e.g. in this way:
