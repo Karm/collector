@@ -26,6 +26,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +35,9 @@ import java.util.Map;
 
 @ApplicationScoped
 public class ImageStatsCollection {
+
+    public static final String CREATED_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+    public static final DateTimeFormatter CREATED_DATE_FORMATTER = DateTimeFormatter.ofPattern(CREATED_DATE_FORMAT);
 
     @Inject
     EntityManager em;
@@ -87,13 +91,26 @@ public class ImageStatsCollection {
 
     @Transactional
     public ImageStats[] deleteMany(Long[] ids) {
-        List<ImageStats> removed = new ArrayList<>();
+        final List<ImageStats> removed = new ArrayList<>();
         for (long id : ids) {
-            ImageStats stat = getSingle(id);
+            final ImageStats stat = getSingle(id);
+            // If we get a request to delete an ID which is already gone, there is nothing to do.
+            if (stat == null) {
+                continue;
+            }
             em.remove(stat);
             removed.add(stat);
         }
         return removed.toArray(new ImageStats[0]);
+    }
+
+    @Transactional
+    public int deleteManyByImageNameAndDate(String imageName, Date dateOldest, Date dateNewest) {
+        return em.createNamedQuery("ImageStats.deleteByImageNameAndDate")
+                .setParameter("image_name", imageName)
+                .setParameter("date_created_oldest", dateOldest)
+                .setParameter("date_created_newest", dateNewest)
+                .executeUpdate();
     }
 
     @Transactional

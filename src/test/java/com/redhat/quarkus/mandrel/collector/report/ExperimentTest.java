@@ -102,6 +102,20 @@ public class ExperimentTest {
                     });
             assertEquals("experiment-1-build-perf-karm-graal-1.0.0-runner", searchOne.get(4L));
             assertEquals(1, searchOne.size());
+            final JsonNode deleted0 = given().contentType(ContentType.JSON)
+                    .header("token", token)
+                    .when().delete(StatsTestHelper.BASE_URL + "/image-name/experiment-1-build-perf-karm-graal-1.0.0-runner"
+                            + "?dateOldest=2021-07-05 15:27:54.794&dateNewest=2022-07-05 15:27:54.794")
+                    .body().as(JsonNode.class);
+            // Nothing should satisfy the time test.
+            assertEquals(0, deleted0.get("deleted").asInt());
+            final JsonNode deletedAll = given().contentType(ContentType.JSON)
+                    .header("token", token)
+                    .when().delete(StatsTestHelper.BASE_URL + "/image-name/experiment-1-build-perf-karm-graal-1.0.0-runner"
+                            + "?dateOldest=2021-07-05 15:27:54.794&dateNewest=2999-07-05 15:27:54.794")
+                    .body().as(JsonNode.class);
+            // All records matching the name and fitting the generous time frame must be deleted.
+            assertEquals(2, deletedAll.get("deleted").asInt());
             TestUtil.checkLog();
         } finally {
             if (!ids.isEmpty()) {
