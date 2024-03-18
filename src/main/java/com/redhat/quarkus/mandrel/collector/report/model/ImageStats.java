@@ -53,6 +53,10 @@ import jakarta.persistence.Table;
 @NamedQuery(name = "ImageStats.distinctImageNamesByKeyword",
         query = "SELECT s.imageName, MAX(s.id) AS id FROM ImageStats s WHERE "
                 + "s.imageName LIKE CONCAT('%',:keyword,'%') GROUP BY s.imageName ORDER BY s.imageName DESC")
+// Delete by image name and date created
+@NamedQuery(name = "ImageStats.deleteByImageNameAndDate",
+        query = "DELETE FROM ImageStats s WHERE s.imageName = :image_name AND "
+                + "s.createdAt > :date_created_oldest AND s.createdAt < :date_created_newest")
 //@formatter:on
 public class ImageStats extends TimestampedEntity {
     @JsonProperty("tag")

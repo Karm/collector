@@ -227,15 +227,13 @@ public class ImageStatsResourceTest {
                 .get(StatsTestHelper.BASE_URL + "/tags/distinct").body().as(String[].class);
         assertEquals(myTags.length, results.length);
         Set<String> resultsSet = new HashSet<>(Arrays.asList(results));
-        for (int i = 0; i < myTags.length; i++) {
-            assertTrue(resultsSet.contains(myTags[0]), "Expected resultset to contain: " + myTags[i]);
+        for (String myTag : myTags) {
+            assertTrue(resultsSet.contains(myTags[0]), "Expected resultset to contain: " + myTag);
         }
 
         // Delete them again
         List<Long> statIds = new ArrayList<>();
-        stats.stream().forEach(a -> {
-            statIds.add(a.getId());
-        });
+        stats.forEach(a -> statIds.add(a.getId()));
         String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
         ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
                 .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);

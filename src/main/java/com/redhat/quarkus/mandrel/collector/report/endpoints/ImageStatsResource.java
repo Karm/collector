@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
+import io.quarkus.runtime.util.StringUtil;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,8 +48,14 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection.CREATED_DATE_FORMAT;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection.CREATED_DATE_FORMATTER;
 
 @ApplicationScoped
 @Path("api/v1/image-stats")
@@ -201,6 +208,34 @@ public class ImageStatsResource {
     @DELETE
     public ImageStats[] deleteMany(Long[] ids) {
         return collection.deleteMany(ids);
+    }
+
+    @RolesAllowed("token_write")
+    @DELETE
+    @Path("image-name/{imageName}")
+    public Response deleteManyByImageNameAndDate(
+            @PathParam("imageName") String imageName,
+            @QueryParam("dateOldest") String dateOldest,
+            @QueryParam("dateNewest") String dateNewest) {
+        if (StringUtil.isNullOrEmpty(imageName) || StringUtil.isNullOrEmpty(dateOldest) ||
+                StringUtil.isNullOrEmpty(dateNewest)) {
+            throw new WebApplicationException("imageName, dateOldest and dateNewest must be set", Status.BAD_REQUEST);
+        }
+        try {
+            final LocalDateTime oldest = LocalDateTime.parse(dateOldest, CREATED_DATE_FORMATTER);
+            final LocalDateTime newest = LocalDateTime.parse(dateNewest, CREATED_DATE_FORMATTER);
+            if (oldest.isAfter(newest)) {
+                throw new WebApplicationException("dateOldest must be before dateNewest", Status.BAD_REQUEST);
+            }
+            return Response.ok(String.format("{\"deleted\":%d}",
+                    collection.deleteManyByImageNameAndDate(imageName, Date.from(oldest.toInstant(java.time.ZoneOffset.UTC)),
+                            Date.from(newest.toInstant(java.time.ZoneOffset.UTC)))))
+                    .build();
+        } catch (DateTimeParseException e) {
+            throw new WebApplicationException(
+                    String.format("%s. Expected format %s.", e, CREATED_DATE_FORMAT),
+                    Status.BAD_REQUEST);
+        }
     }
 
     @Provider
