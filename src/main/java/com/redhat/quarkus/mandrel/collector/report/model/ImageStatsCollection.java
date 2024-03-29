@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Collector project
+ * Copyright (c) 2022, 2024 Contributors to the Collector project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -122,6 +122,18 @@ public class ImageStatsCollection {
         if (buildTimeMilis != 0) {
             final BuildPerformanceStats perfStats = stat.getResourceStats();
             perfStats.setTotalTimeSeconds(((double) buildTimeMilis) / 1000);
+        }
+        return stat;
+    }
+
+    @Transactional
+    public ImageStats updateRunnerInfo(long id, RunnerInfo info) {
+        final ImageStats stat = getSingle(id);
+        if (stat == null) {
+            return null;
+        }
+        if (info != null) {
+            stat.setRunnerInfo(info);
         }
         return stat;
     }

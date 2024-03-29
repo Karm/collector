@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Collector project
+ * Copyright (c) 2022, 2024 Contributors to the Collector project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -23,6 +23,7 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.quarkus.mandrel.collector.TestUtil;
 import com.redhat.quarkus.mandrel.collector.report.endpoints.StatsTestHelper.Mode;
+import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.BuildPerformanceStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageSizeStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
@@ -297,6 +298,8 @@ public class ImageStatsResourceTest {
     private ImageStats createImageStat(String name, String tag) {
         ImageStats imageStats = new ImageStats(name);
         imageStats.setGraalVersion("GraalVM 21.3 (Java 17) Mandrel Distribution");
+        RunnerInfo runnerInfo = new RunnerInfo();
+        imageStats.setRunnerInfo(runnerInfo);
         if (tag != null) {
             imageStats.setTag(tag);
         }
