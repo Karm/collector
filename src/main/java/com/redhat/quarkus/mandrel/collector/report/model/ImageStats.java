@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Collector project
+ * Copyright (c) 2022, 2024 Contributors to the Collector project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -100,6 +100,11 @@ public class ImageStats extends TimestampedEntity {
     @JoinColumn(name = "reachable_stats_id")
     private ReachableImageStats reachableStats;
 
+    @JsonProperty("runner_info")
+    @OneToOne(optional = true, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "runner_info_id")
+    private RunnerInfo runnerInfo;
+
     @Id
     @SequenceGenerator(name = "imageStatsSeq", sequenceName = "image_stats_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(generator = "imageStatsSeq")
@@ -127,6 +132,10 @@ public class ImageStats extends TimestampedEntity {
 
     public void setReachableStats(ReachableImageStats reachableStats) {
         this.reachableStats = reachableStats;
+    }
+
+    public void setRunnerInfo(RunnerInfo runnerInfo) {
+        this.runnerInfo = runnerInfo;
     }
 
     // Hibernate needs this
@@ -172,6 +181,10 @@ public class ImageStats extends TimestampedEntity {
 
     public ReachableImageStats getReachableStats() {
         return reachableStats;
+    }
+
+    public RunnerInfo getRunnerInfo() {
+        return runnerInfo;
     }
 
     public String getGraalVersion() {

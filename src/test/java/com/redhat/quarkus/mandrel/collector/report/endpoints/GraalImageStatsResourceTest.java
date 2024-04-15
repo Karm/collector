@@ -25,7 +25,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +72,41 @@ public class GraalImageStatsResourceTest {
         TestUtil.checkLog();
     }
 
+    @Test
+    public void testImportAndRunnerInfoUpdate() throws Exception {
+        String json = createGraalJSON();
+        String token = StatsTestHelper.login(Mode.READ_WRITE);
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL + "/import").body();
+        ImageStats result = body.as(ImageStats.class);
+
+        long originalId = result.getId();
+        assertTrue(originalId > 0);
+        assertEquals("foo-bar", result.getImageName());
+        assertEquals("GraalVM 22.3.0-dev Java 11 Mandrel Distribution", result.getGraalVersion());
+
+        idsToDelete.add(originalId);
+
+        // Now add some runner info
+        json = createRunnerJSON();
+        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(StatsTestHelper.BASE_URL + "/update-runner-info/" + originalId).body();
+        result = body.as(ImageStats.class);
+
+        assertTrue(result.getId() == originalId);
+        assertEquals("foo-bar", result.getImageName());
+        assertEquals("Github Runner 2.315.0", result.getRunnerInfo().getDescription());
+        assertEquals(14336, result.getRunnerInfo().getMemorySize());
+
+        // Ensure we can listOne the result
+        given().contentType(ContentType.JSON).header("token", token).when()
+                .get(StatsTestHelper.BASE_URL + "/" + originalId).then().statusCode(200)
+                .body(containsString(result.getImageName()),
+                        containsString(result.getGraalVersion()),
+                        containsString(result.getRunnerInfo().getDescription()));
+        TestUtil.checkLog();
+    }
+
     @AfterEach
     public void delete() {
         // Delete the created resources again
@@ -81,6 +115,7 @@ public class GraalImageStatsResourceTest {
             given().contentType(ContentType.JSON).header("token", token).when()
                     .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200);
         }
+        idsToDelete.clear();
     }
 
     private String createGraalJSON() {
@@ -146,5 +181,19 @@ public class GraalImageStatsResourceTest {
                 + "  }\n"
                 + "}";
         // @formatter:on
+    }
+
+    // We intentionally leave out the "operatingSystem" entry to test how missing entries are handled
+    private String createRunnerJSON() {
+        return """
+                 {
+                   "testVersion": "1.0.0",
+                   "mandrelVersion": "22.3.0",
+                   "jdkVersion": "17.0.7",
+                   "architecture": "x86_64",
+                   "memorySize": 14336,
+                   "description" : "Github Runner 2.315.0"
+                 }
+                """;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Collector project
+ * Copyright (c) 2022, 2024 Contributors to the Collector project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -22,6 +22,7 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
@@ -191,6 +192,21 @@ public class ImageStatsResource {
                     Status.INTERNAL_SERVER_ERROR);
         }
         final ImageStats stat = collection.updateBuildTime(statId, info.getTotalBuildTimeMilis());
+        if (stat == null) {
+            throw new WebApplicationException("Stat with id " + statId + " not found", Status.NOT_FOUND);
+        }
+        return stat;
+    }
+
+    @RolesAllowed("token_write")
+    @POST
+    @Path("update-runner-info/{statId:\\d+}")
+    public ImageStats updateRunnerInfo(@PathParam("statId") Long statId, RunnerInfo info) {
+        if (info == null) {
+            throw new WebApplicationException("RunnerInfo for statId " + statId + " must not be null",
+                    Status.INTERNAL_SERVER_ERROR);
+        }
+        final ImageStats stat = collection.updateRunnerInfo(statId, info);
         if (stat == null) {
             throw new WebApplicationException("Stat with id " + statId + " not found", Status.NOT_FOUND);
         }
