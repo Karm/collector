@@ -46,7 +46,7 @@ public class RunnerInfo extends PanacheEntity {
     @JsonProperty
     private String architecture;
     @JsonProperty
-    private long memorySize;
+    private long memorySizeBytes;
     @JsonProperty
     private String description;
 
@@ -90,12 +90,12 @@ public class RunnerInfo extends PanacheEntity {
         this.architecture = architecture;
     }
 
-    public long getMemorySize() {
-        return memorySize;
+    public long getMemorySizeBytes() {
+        return memorySizeBytes;
     }
 
-    public void setMemorySize(long memorySize) {
-        this.memorySize = memorySize;
+    public void setMemorySizeBytes(long memorySizeBytes) {
+        this.memorySizeBytes = memorySizeBytes;
     }
 
     public String getDescription() {

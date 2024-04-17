@@ -93,10 +93,10 @@ public class GraalImageStatsResourceTest {
                 .post(StatsTestHelper.BASE_URL + "/update-runner-info/" + originalId).body();
         result = body.as(ImageStats.class);
 
-        assertTrue(result.getId() == originalId);
+        assertEquals(result.getId(), originalId);
         assertEquals("foo-bar", result.getImageName());
         assertEquals("Github Runner 2.315.0", result.getRunnerInfo().getDescription());
-        assertEquals(14336, result.getRunnerInfo().getMemorySize());
+        assertEquals(274877906944L, result.getRunnerInfo().getMemorySizeBytes());
 
         // Ensure we can listOne the result
         given().contentType(ContentType.JSON).header("token", token).when()
@@ -191,7 +191,7 @@ public class GraalImageStatsResourceTest {
                    "mandrelVersion": "22.3.0",
                    "jdkVersion": "17.0.7",
                    "architecture": "x86_64",
-                   "memorySize": 14336,
+                   "memorySizeBytes": 274877906944,
                    "description" : "Github Runner 2.315.0"
                  }
                 """;
