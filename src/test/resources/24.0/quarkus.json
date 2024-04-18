@@ -1,1 +1,75 @@
-{"resource_usage":{"memory":{"system_total":66847477760,"peak_rss_bytes":7943794688},"garbage_collection":{"count":107,"total_secs":10.565,"max_heap":28445245440},"cpu":{"load":11.254874158099966,"parallelism":16,"total_cores":16},"total_secs":132.016879377},"image_details":{"code_area":{"bytes":51297744,"compilation_units":83004},"total_bytes":108253200,"image_heap":{"bytes":56528896,"objects":{"count":582250},"resources":{"bytes":251104,"count":100}}},"general_info":{"c_compiler":"gcc (redhat, x86_64, 11.4.1)","name":"experiment-1-build-perf-karm-graal-1.0.0-runner","java_version":"22-beta+33-ea","garbage_collector":"Serial GC","graal_compiler":{"march":"x86-64-v3","optimization_level":"2"},"vendor_version":"Mandrel-24.0.0.0-dev18889be7190","graalvm_version":"Mandrel-24.0.0.0-dev18889be7190"},"analysis_results":{"types":{"total":29893,"reflection":7878,"jni":61,"reachable":26982},"methods":{"foreign_downcalls":-1,"total":228378,"reflection":5693,"jni":55,"reachable":128872},"classes":{"total":29893,"reflection":7878,"jni":61,"reachable":26982},"fields":{"total":64697,"reflection":593,"jni":61,"reachable":37635}}}
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 66847477760,
+      "peak_rss_bytes": 7943794688
+    },
+    "garbage_collection": {
+      "count": 107,
+      "total_secs": 10.565,
+      "max_heap": 28445245440
+    },
+    "cpu": {
+      "load": 11.254874158099966,
+      "parallelism": 16,
+      "total_cores": 16
+    },
+    "total_secs": 132.016879377
+  },
+  "image_details": {
+    "code_area": {
+      "bytes": 51297744,
+      "compilation_units": 83004
+    },
+    "total_bytes": 108253200,
+    "image_heap": {
+      "bytes": 56528896,
+      "objects": {
+        "count": 582250
+      },
+      "resources": {
+        "bytes": 251104,
+        "count": 100
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 11.4.1)",
+    "name": "experiment-1-build-perf-karm-graal-1.0.0-runner",
+    "java_version": "22-beta+33-ea",
+    "garbage_collector": "Serial GC",
+    "graal_compiler": {
+      "march": "x86-64-v3",
+      "optimization_level": "2"
+    },
+    "vendor_version": "Mandrel-24.0.0.0-dev18889be7190",
+    "graalvm_version": "Mandrel-24.0.0.0-dev18889be7190"
+  },
+  "analysis_results": {
+    "types": {
+      "total": 29893,
+      "reflection": 7878,
+      "jni": 61,
+      "reachable": 26982
+    },
+    "methods": {
+      "foreign_downcalls": -1,
+      "total": 228378,
+      "reflection": 5693,
+      "jni": 55,
+      "reachable": 128872
+    },
+    "classes": {
+      "total": 29893,
+      "reflection": 7878,
+      "jni": 61,
+      "reachable": 26982
+    },
+    "fields": {
+      "total": 64697,
+      "reflection": 593,
+      "jni": 61,
+      "reachable": 37635
+    }
+  }
+}

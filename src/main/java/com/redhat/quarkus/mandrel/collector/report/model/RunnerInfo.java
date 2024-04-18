@@ -20,7 +20,8 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -29,25 +30,21 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Entity
 @Table(name = "runner_info")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER, name = "stats_type")
 public class RunnerInfo extends PanacheEntity {
 
-    @JsonProperty
     private String testVersion;
-    @JsonProperty
     private String mandrelVersion;
-    @JsonProperty
+    private String quarkusVersion;
     private String jdkVersion;
-    @JsonProperty
     private String operatingSystem;
-    @JsonProperty
     private String architecture;
-    @JsonProperty
     private long memorySizeBytes;
-    @JsonProperty
+    private long memoryAvailableBytes;
     private String description;
 
     public String getTestVersion() {
@@ -64,6 +61,14 @@ public class RunnerInfo extends PanacheEntity {
 
     public void setMandrelVersion(String mandrelVersion) {
         this.mandrelVersion = mandrelVersion;
+    }
+
+    public String getQuarkusVersion() {
+        return quarkusVersion;
+    }
+
+    public void setQuarkusVersion(String quarkusVersion) {
+        this.quarkusVersion = quarkusVersion;
     }
 
     public String getJdkVersion() {
@@ -96,6 +101,14 @@ public class RunnerInfo extends PanacheEntity {
 
     public void setMemorySizeBytes(long memorySizeBytes) {
         this.memorySizeBytes = memorySizeBytes;
+    }
+
+    public long getMemoryAvailableBytes() {
+        return memoryAvailableBytes;
+    }
+
+    public void setMemoryAvailableBytes(long memoryAvailableBytes) {
+        this.memoryAvailableBytes = memoryAvailableBytes;
     }
 
     public String getDescription() {

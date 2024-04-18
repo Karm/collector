@@ -32,6 +32,7 @@ import org.apache.http.HttpStatus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -103,7 +104,9 @@ public class StatsTestHelper {
 
     public static String getStatString(String name) {
         try (InputStream is = StatsTestHelper.class.getResourceAsStream("/" + name)) {
-            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return new String(Objects.requireNonNull(is).readAllBytes(), StandardCharsets.UTF_8)
+                    // Eat "comments" in the JSON
+                    .replaceAll("(?m)^#.*$", "");
         } catch (IOException e) {
             throw new AssertionError("Error reading file: " + name, e);
         }

@@ -27,6 +27,7 @@ import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
 import io.quarkus.runtime.util.StringUtil;
+import io.smallrye.common.constraint.NotNull;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -173,7 +174,7 @@ public class ImageStatsResource {
 
     @RolesAllowed("token_write")
     @POST
-    public ImageStats add(ImageStats stat, @QueryParam("t") String tag) {
+    public ImageStats add(@NotNull ImageStats stat, @QueryParam("t") String tag) {
         if (stat.getId() > 0) {
             throw new WebApplicationException("Id was invalidly set on request.", 422);
         }
