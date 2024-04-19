@@ -1,0 +1,60 @@
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 33260355584,
+      "peak_rss_bytes": 3127443456
+    },
+    "garbage_collection": {
+      "count": 20,
+      "total_secs": 1.097
+    },
+    "cpu": {
+      "load": 6.307451297470753,
+      "total_cores": 8
+    }
+  },
+  "image_details": {
+    "debug_info": {
+      "bytes": 7694974
+    },
+    "code_area": {
+      "bytes": 4181808,
+      "compilation_units": 7040
+    },
+    "total_bytes": 20157545,
+    "image_heap": {
+      "bytes": 7233536,
+      "resources": {
+        "bytes": 142884,
+        "count": 5
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 11.3.1)",
+    "name": "foo-bar",
+    "java_version": null,
+    "garbage_collector": "Serial GC",
+    "graalvm_version": "GraalVM 22.3.0-dev Java 11 Mandrel Distribution"
+  },
+  "analysis_results": {
+    "methods": {
+      "total": 27123,
+      "reflection": 267,
+      "jni": 52,
+      "reachable": 12255
+    },
+    "classes": {
+      "total": 3725,
+      "reflection": 27,
+      "jni": 58,
+      "reachable": 2709
+    },
+    "fields": {
+      "total": 6388,
+      "reflection": 0,
+      "jni": -1,
+      "reachable": 3430
+    }
+  }
+}

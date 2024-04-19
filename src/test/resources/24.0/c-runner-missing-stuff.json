@@ -1,0 +1,12 @@
+# We drop # prefied "comments" like this from the string.
+{
+  "test_version": "1.0.0",
+  "mandrel_version": "24.0.0",
+  "quarkus_version": "3.8.4.Final",
+  "jdk_version": "17.0.7",
+#  "operating_system": "Linux",
+#  "architecture": "x86_64",
+  "memory_size_bytes": 274877906944,
+  "memory_available_bytes": 174811906921,
+  "description": "Github Runner 666"
+}
