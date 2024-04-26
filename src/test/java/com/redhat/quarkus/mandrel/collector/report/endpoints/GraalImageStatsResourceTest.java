@@ -38,6 +38,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
@@ -52,16 +53,16 @@ public class GraalImageStatsResourceTest {
 
     @Test
     public void testImport() throws Exception {
-        String json = StatsTestHelper.getStatString("22.3/c.json");
-        String token = StatsTestHelper.login(Mode.READ_WRITE);
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+        final String json = StatsTestHelper.getStatString("22.3/c.json");
+        final String token = StatsTestHelper.login(Mode.READ_WRITE);
+        final ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
                 .post(StatsTestHelper.BASE_URL + "/import").body();
-        ImageStats result = body.as(ImageStats.class);
+        final ImageStats result = body.as(ImageStats.class);
+        idsToDelete.add(result.getId());
 
         assertTrue(result.getId() > 0);
         assertEquals("foo-bar", result.getImageName());
         assertEquals("GraalVM 22.3.0-dev Java 11 Mandrel Distribution", result.getGraalVersion());
-        idsToDelete.add(result.getId());
 
         // Ensure we can listOne the result
         given().contentType(ContentType.JSON).header("token", token).when()
@@ -73,17 +74,19 @@ public class GraalImageStatsResourceTest {
     @Test
     public void testImportAndRunnerInfoUpdate() throws Exception {
         String json = StatsTestHelper.getStatString("22.3/c.json");
-        String token = StatsTestHelper.login(Mode.READ_WRITE);
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                .post(StatsTestHelper.BASE_URL + "/import").body();
+        final String token = StatsTestHelper.login(Mode.READ_WRITE);
+        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token)
+                .body(json).when()
+                .post(StatsTestHelper.BASE_URL + "/import?t=meh").body();
         ImageStats result = body.as(ImageStats.class);
 
-        long originalId = result.getId();
+        final long originalId = result.getId();
+        idsToDelete.add(originalId);
+
         assertTrue(originalId > 0);
         assertEquals("foo-bar", result.getImageName());
         assertEquals("GraalVM 22.3.0-dev Java 11 Mandrel Distribution", result.getGraalVersion());
-
-        idsToDelete.add(originalId);
+        assertNull(result.getRunnerInfo());
 
         // Now add some runner info
         json = StatsTestHelper.getStatString("22.3/c-runner.json");
@@ -95,6 +98,7 @@ public class GraalImageStatsResourceTest {
         assertEquals("foo-bar", result.getImageName());
         assertEquals("Github Runner 2.315.0", result.getRunnerInfo().getDescription());
         assertEquals(274877906944L, result.getRunnerInfo().getMemorySizeBytes());
+        assertEquals("https://github.com/quarkusio/quarkus/pull/31490", result.getRunnerInfo().getGhPR());
 
         // Ensure we can listOne the result
         given().contentType(ContentType.JSON).header("token", token).when()
@@ -108,17 +112,17 @@ public class GraalImageStatsResourceTest {
     @Test
     public void testImportAndRunnerM24InfoUpdate() throws Exception {
         String json = StatsTestHelper.getStatString("24.0/quarkus.json");
-        String token = StatsTestHelper.login(Mode.READ_WRITE);
+        final String token = StatsTestHelper.login(Mode.READ_WRITE);
         ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
                 .post(StatsTestHelper.BASE_URL + "/import").body();
         ImageStats result = body.as(ImageStats.class);
 
         long originalId = result.getId();
+        idsToDelete.add(originalId);
+
         assertTrue(originalId > 0);
         assertEquals("experiment-1-build-perf-karm-graal-1.0.0-runner", result.getImageName());
         assertEquals("Mandrel-24.0.0.0-dev18889be7190", result.getGraalVersion());
-
-        idsToDelete.add(originalId);
 
         // Now add some runner info
         json = StatsTestHelper.getStatString("24.0/c-runner-missing-stuff.json");

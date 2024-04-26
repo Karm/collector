@@ -26,19 +26,21 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Entity
-@Table(name = "runner_info")
+@Table(name = "runner_info", indexes = {
+        @Index(columnList = "testVersion, graalvmVersion, quarkusVersion, jdkVersion, description, ghPR") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER, name = "stats_type")
 public class RunnerInfo extends PanacheEntity {
 
     private String testVersion;
-    private String mandrelVersion;
+    private String graalvmVersion;
     private String quarkusVersion;
     private String jdkVersion;
     private String operatingSystem;
@@ -46,6 +48,7 @@ public class RunnerInfo extends PanacheEntity {
     private long memorySizeBytes;
     private long memoryAvailableBytes;
     private String description;
+    private String ghPR;
 
     public String getTestVersion() {
         return testVersion;
@@ -55,12 +58,12 @@ public class RunnerInfo extends PanacheEntity {
         this.testVersion = testVersion;
     }
 
-    public String getMandrelVersion() {
-        return mandrelVersion;
+    public String getGraalvmVersion() {
+        return graalvmVersion;
     }
 
-    public void setMandrelVersion(String mandrelVersion) {
-        this.mandrelVersion = mandrelVersion;
+    public void setGraalvmVersion(String graalvmVersion) {
+        this.graalvmVersion = graalvmVersion;
     }
 
     public String getQuarkusVersion() {
@@ -117,5 +120,13 @@ public class RunnerInfo extends PanacheEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getGhPR() {
+        return ghPR;
+    }
+
+    public void setGhPR(String ghPR) {
+        this.ghPR = ghPR;
     }
 }

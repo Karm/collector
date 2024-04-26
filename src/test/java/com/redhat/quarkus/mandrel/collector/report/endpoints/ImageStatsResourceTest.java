@@ -23,13 +23,13 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.quarkus.mandrel.collector.TestUtil;
 import com.redhat.quarkus.mandrel.collector.report.endpoints.StatsTestHelper.Mode;
-import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.BuildPerformanceStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageSizeStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.JNIAccessStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ReachableImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ReflectionRegistrationStats;
+import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.TotalClassesStats;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
 import io.quarkus.test.junit.QuarkusTest;
@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -65,6 +66,88 @@ public class ImageStatsResourceTest {
     @BeforeAll
     public static void setup() {
         RestAssured.defaultParser = Parser.JSON;
+    }
+
+    @Test
+    public void testImportManyToOne() throws Exception {
+        final String runnerInfo1 = StatsTestHelper.getStatString("23.1/quarkus-runner.json");
+        final String resultA = StatsTestHelper.getStatString("23.1/quarkus-awt.json");
+        final String resultB = StatsTestHelper.getStatString("23.1/quarkus-main.json");
+        final String resultC = StatsTestHelper.getStatString("23.1/quarkus-no-awt.json");
+        final String runnerInfo2 = StatsTestHelper.getStatString("24.0/quarkus-runner.json");
+        final String resultD = StatsTestHelper.getStatString("24.0/quarkus-jaxb.json");
+
+        final String token = StatsTestHelper.login(Mode.READ_WRITE);
+
+        final RunnerInfo r1 = given().contentType(ContentType.JSON).header("token", token).body(runnerInfo1)
+                .when().post(StatsTestHelper.BASE_URL + "/runner-info").body().as(RunnerInfo.class);
+
+        final ImageStats rA = given().contentType(ContentType.JSON).header("token", token).body(resultA)
+                .when().post(StatsTestHelper.BASE_URL + "/import?t=mehTagA" + "&rid=" + r1.id).body().as(ImageStats.class);
+        final ImageStats rB = given().contentType(ContentType.JSON).header("token", token).body(resultB)
+                .when().post(StatsTestHelper.BASE_URL + "/import?t=mehTagB" + "&rid=" + r1.id).body().as(ImageStats.class);
+        final ImageStats rC = given().contentType(ContentType.JSON).header("token", token).body(resultC)
+                .when().post(StatsTestHelper.BASE_URL + "/import?t=mehTagC" + "&rid=" + r1.id).body().as(ImageStats.class);
+
+        // Insert another run with another image stat:
+        final RunnerInfo r2 = given().contentType(ContentType.JSON).header("token", token).body(runnerInfo2)
+                .when().post(StatsTestHelper.BASE_URL + "/runner-info").body().as(RunnerInfo.class);
+
+        final ImageStats rD = given().contentType(ContentType.JSON).header("token", token).body(resultD)
+                .when().post(StatsTestHelper.BASE_URL + "/import?t=mehTagD" + "&rid=" + r2.id).body().as(ImageStats.class);
+        try {
+
+            assertTrue(r1.id > 0);
+            assertEquals("https://github.com/quarkusio/quarkus/pull/66666666", r1.getGhPR());
+            assertEquals("Mandrel-23.1.1.0-Final", r1.getGraalvmVersion());
+
+            assertTrue(rA.getId() > 0);
+            assertTrue(rB.getId() > 0);
+            assertTrue(rC.getId() > 0);
+            assertEquals(r1.id, rA.getRunnerInfo().id);
+            assertEquals(r1.id, rB.getRunnerInfo().id);
+            assertEquals(r1.id, rC.getRunnerInfo().id);
+            assertEquals("quarkus-integration-test-awt-999-SNAPSHOT-runner", rA.getImageName());
+            assertEquals("quarkus-integration-test-main-999-SNAPSHOT-runner", rB.getImageName());
+            assertEquals("quarkus-integration-test-no-awt-999-SNAPSHOT-runner", rC.getImageName());
+
+            assertTrue(r2.id > 0);
+            assertEquals("https://github.com/quarkusio/quarkus/pull/66666666", r2.getGhPR());
+            assertEquals("Mandrel-24.0.1.0-Final", r2.getGraalvmVersion());
+
+            // Lookup all stats from all runs that belong to
+            // a particular PR using RestAssured:
+            final ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/lookup?ghPR=https://github.com/quarkusio/quarkus/pull/66666666").body()
+                    .as(ImageStats[].class);
+            assertEquals(4, results.length);
+
+            final ImageStats[] run1Results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/lookup?rid=" + r1.id).body()
+                    .as(ImageStats[].class);
+            assertEquals(3, run1Results.length);
+
+            final ImageStats[] run2Results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/lookup?rid=" + r2.id).body()
+                    .as(ImageStats[].class);
+            assertEquals(1, run2Results.length);
+            assertEquals("https://github.com/quarkusio/quarkus/pull/66666666", run2Results[0].getRunnerInfo().getGhPR());
+            assertEquals("Mandrel-24.0.1.0-Final", run2Results[0].getRunnerInfo().getGraalvmVersion());
+            assertEquals("quarkus-integration-test-jaxb-999-SNAPSHOT-runner", run2Results[0].getImageName());
+
+        } finally {
+            // Delete ImgeStats:
+            Stream.of(rA.getId(), rB.getId(), rC.getId(), rD.getId()).forEach(id -> {
+                given().contentType(ContentType.JSON).header("token", token).when()
+                        .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200);
+            });
+            // Delete RunnerInfo
+            Stream.of(r1.id, r2.id).forEach(id -> {
+                given().contentType(ContentType.JSON).header("token", token).when()
+                        .delete(StatsTestHelper.BASE_URL + "/runner-info/" + id).then().statusCode(200);
+            });
+            TestUtil.checkLog();
+        }
     }
 
     @Test
@@ -340,5 +423,4 @@ public class ImageStatsResourceTest {
         objectMapper.writeValue(baos, imageStats);
         return baos.toString(StandardCharsets.UTF_8);
     }
-
 }

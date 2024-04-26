@@ -43,7 +43,16 @@ public class ImageStatsCollection {
     EntityManager em;
 
     @Transactional
-    public ImageStats add(ImageStats stat) {
+    public ImageStats add(ImageStats stat, Long runnerInfoId) {
+        if (runnerInfoId != null) {
+            stat.setRunnerInfo(getSingleRunnerInfo(runnerInfoId));
+        }
+        // Could we receive stat with runnerInfo already set...
+        if (stat.getRunnerInfo() != null) {
+            if (stat.getRunnerInfo().id == null) {
+                em.persist(stat.getRunnerInfo());
+            }
+        }
         stat.setCreatedAt(new Date());
         em.persist(stat);
         return stat;
@@ -76,6 +85,18 @@ public class ImageStatsCollection {
         return em.createNamedQuery("ImageStats.distinctImageNamesByKeyword", Tuple.class).setParameter("keyword", keyword)
                 .getResultList().stream()
                 .collect(HashMap::new, (m, t) -> m.put(t.get(1, Long.class), t.get(0, String.class)), HashMap::putAll);
+    }
+
+    public ImageStats[] getAllByGhPR(String ghPR) {
+        return em.createNamedQuery("ImageStats.findByGhPR", ImageStats.class)
+                .setParameter("ghPR", ghPR)
+                .getResultList().toArray(new ImageStats[0]);
+    }
+
+    public ImageStats[] getAllByRunnerInfo(Long runnerInfoId) {
+        return em.createNamedQuery("ImageStats.findByRunnerInfoId", ImageStats.class)
+                .setParameter("runnerInfoId", runnerInfoId)
+                .getResultList().toArray(new ImageStats[0]);
     }
 
     public ImageStats getSingle(long id) {
@@ -133,8 +154,30 @@ public class ImageStatsCollection {
             return null;
         }
         if (info != null) {
+            em.persist(info);
             stat.setRunnerInfo(info);
         }
         return stat;
+    }
+
+    // RunnerInfo
+
+    public RunnerInfo getSingleRunnerInfo(long id) {
+        return em.find(RunnerInfo.class, id);
+    }
+
+    @Transactional
+    public RunnerInfo add(RunnerInfo runnerInfo) {
+        em.persist(runnerInfo);
+        return runnerInfo;
+    }
+
+    // TODO: What to do with the stats? We leave them
+    // without runner info? Delete them too?
+    @Transactional
+    public RunnerInfo deleteRunnerInfo(long id) {
+        final RunnerInfo r = getSingleRunnerInfo(id);
+        em.remove(r);
+        return r;
     }
 }

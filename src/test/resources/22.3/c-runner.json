@@ -1,11 +1,12 @@
 {
   "test_version": "1.0.0",
-  "mandrel_version": "22.3.0",
+  "graalvm_version": "22.3.0",
   "quarkus_version": "2.13.3.Final",
   "jdk_version": "17.0.7",
   "operating_system": "Linux",
   "architecture": "x86_64",
   "memory_size_bytes": 274877906944,
   "memory_available_bytes": 174811906921,
-  "description": "Github Runner 2.315.0"
+  "description": "Github Runner 2.315.0",
+  "gh_pr": "https://github.com/quarkusio/quarkus/pull/31490"
 }

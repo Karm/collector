@@ -22,9 +22,9 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
+import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
 import io.quarkus.runtime.util.StringUtil;
 import io.smallrye.common.constraint.NotNull;
@@ -66,12 +66,11 @@ import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollec
 public class ImageStatsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ImageStatsResource.class.getName());
-    private final ImageStatsCollection collection;
 
-    public ImageStatsResource(ImageStatsCollection collection) {
-        this.collection = collection;
-    }
+    @Inject
+    ImageStatsCollection collection;
 
+    // TODO: Paging
     @RolesAllowed("token_read")
     @GET
     public ImageStats[] list() {
@@ -90,6 +89,23 @@ public class ImageStatsResource {
     @Path("tag/{tag}")
     public ImageStats[] getByTag(@PathParam("tag") String tag) {
         return collection.getAllByTag(tag);
+    }
+
+    // TODO: Not sure about the API, we need some consistency...
+    @RolesAllowed("token_read")
+    @GET
+    @Path("lookup")
+    public ImageStats[] getByGhPR(@QueryParam("ghPR") String ghPR, @QueryParam("rid") Long runnerInfoId) {
+        if (ghPR != null && runnerInfoId != null) {
+            throw new WebApplicationException("Only one of ghPR or rid can be set at the moment.", Status.BAD_REQUEST);
+        }
+        if (runnerInfoId != null) {
+            return collection.getAllByRunnerInfo(runnerInfoId);
+        }
+        if (ghPR != null) {
+            return collection.getAllByGhPR(ghPR);
+        }
+        throw new WebApplicationException("Either ghPR or rid must be set.", Status.BAD_REQUEST);
     }
 
     @RolesAllowed("token_read")
@@ -174,14 +190,14 @@ public class ImageStatsResource {
 
     @RolesAllowed("token_write")
     @POST
-    public ImageStats add(@NotNull ImageStats stat, @QueryParam("t") String tag) {
+    public ImageStats add(@NotNull ImageStats stat, @QueryParam("t") String tag, @QueryParam("rid") Long runnerInfoId) {
         if (stat.getId() > 0) {
             throw new WebApplicationException("Id was invalidly set on request.", 422);
         }
         if (tag != null) {
             stat.setTag(tag);
         }
-        return collection.add(stat);
+        return collection.add(stat, runnerInfoId);
     }
 
     @RolesAllowed("token_write")
@@ -212,6 +228,20 @@ public class ImageStatsResource {
             throw new WebApplicationException("Stat with id " + statId + " not found", Status.NOT_FOUND);
         }
         return stat;
+    }
+
+    @RolesAllowed("token_write")
+    @POST
+    @Path("runner-info")
+    public RunnerInfo createRunnerInfo(@NotNull RunnerInfo info) {
+        return collection.add(info);
+    }
+
+    @RolesAllowed("token_write")
+    @DELETE
+    @Path("runner-info/{runnerId}")
+    public RunnerInfo deleteRunnerInfo(@PathParam("runnerId") Long runnerId) {
+        return collection.deleteRunnerInfo(runnerId);
     }
 
     @RolesAllowed("token_write")

@@ -1,0 +1,75 @@
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 66847330304,
+      "peak_rss_bytes": 8966524928
+    },
+    "garbage_collection": {
+      "count": 133,
+      "total_secs": 11.538,
+      "max_heap": 19838533632
+    },
+    "cpu": {
+      "load": 10.959016772166521,
+      "parallelism": 16,
+      "total_cores": 16
+    },
+    "total_secs": 107.671316924
+  },
+  "image_details": {
+    "code_area": {
+      "bytes": 64762176,
+      "compilation_units": 100013
+    },
+    "total_bytes": 146318448,
+    "image_heap": {
+      "bytes": 81121280,
+      "objects": {
+        "count": 670204
+      },
+      "resources": {
+        "bytes": 9014096,
+        "count": 419
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 8.5.0)",
+    "name": "quarkus-integration-test-main-999-SNAPSHOT-runner",
+    "java_version": "21.0.2+13-LTS",
+    "garbage_collector": "Serial GC",
+    "graal_compiler": {
+      "march": "x86-64-v3",
+      "optimization_level": "2"
+    },
+    "vendor_version": "Mandrel-23.1.2.0-Final",
+    "graalvm_version": "Mandrel-23.1.2.0-Final"
+  },
+  "analysis_results": {
+    "types": {
+      "total": 33686,
+      "reflection": 9156,
+      "jni": 62,
+      "reachable": 30499
+    },
+    "methods": {
+      "foreign_downcalls": -1,
+      "total": 258465,
+      "reflection": 7683,
+      "jni": 55,
+      "reachable": 151471
+    },
+    "classes": {
+      "total": 33686,
+      "reflection": 9156,
+      "jni": 62,
+      "reachable": 30499
+    },
+    "fields": {
+      "total": 69533,
+      "reflection": 489,
+      "jni": 63,
+      "reachable": 44376
+    }
+  }
+}

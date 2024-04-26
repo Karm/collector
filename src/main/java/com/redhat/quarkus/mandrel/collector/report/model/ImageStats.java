@@ -27,6 +27,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -57,6 +58,13 @@ import jakarta.persistence.Table;
 @NamedQuery(name = "ImageStats.deleteByImageNameAndDate",
         query = "DELETE FROM ImageStats s WHERE s.imageName = :image_name AND "
                 + "s.createdAt > :date_created_oldest AND s.createdAt < :date_created_newest")
+/*
+ * RunnerInfo lookup
+ */
+@NamedQuery(name = "ImageStats.findByGhPR",
+        query = "SELECT s FROM ImageStats s WHERE s.runnerInfo.ghPR = :ghPR ORDER BY s.imageName")
+@NamedQuery(name = "ImageStats.findByRunnerInfoId",
+        query = "SELECT s FROM ImageStats s WHERE s.runnerInfo.id = :runnerInfoId ORDER BY s.imageName")
 //@formatter:on
 public class ImageStats extends TimestampedEntity {
     @JsonProperty("tag")
@@ -101,7 +109,7 @@ public class ImageStats extends TimestampedEntity {
     private ReachableImageStats reachableStats;
 
     @JsonProperty("runner_info")
-    @OneToOne(optional = true, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = true, cascade = CascadeType.MERGE)
     @JoinColumn(name = "runner_info_id")
     private RunnerInfo runnerInfo;
 
