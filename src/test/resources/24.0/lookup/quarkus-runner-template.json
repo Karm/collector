@@ -1,0 +1,12 @@
+{
+  "test_version": "@testVersion@",
+  "graalvm_version": "@graalvmVersion@",
+  "quarkus_version": "@quarkusVersion@",
+  "jdk_version": "@jdkVersion@",
+  "operating_system": "Linux",
+  "architecture": "x86_64",
+  "memory_size_bytes": 174877906944,
+  "memory_available_bytes": 124811906921,
+  "description": "@description@",
+  "triggered_by": "@triggeredBy@"
+}

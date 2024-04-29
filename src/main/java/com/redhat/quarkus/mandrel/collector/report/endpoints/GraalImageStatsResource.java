@@ -29,15 +29,12 @@ public class GraalImageStatsResource {
     @RolesAllowed("token_write")
     @Path("import")
     @POST
-    public ImageStats importStat(GraalStats importStat, @QueryParam("t") String tag, @QueryParam("rid") Long runnerInfoId)
+    public ImageStats importStat(GraalStats importStat, @QueryParam("t") String tag, @QueryParam("runnerid") Long runnerInfoId)
             throws WebApplicationException {
         if (importStat == null) {
-            throw new WebApplicationException("GraalStats must not be null", Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException("GraalStats must not be null", Status.BAD_REQUEST);
         }
         final ImageStats stat = ADAPTER.adapt(importStat);
-        if (tag != null) {
-            stat.setTag(tag);
-        }
-        return collection.add(stat, runnerInfoId);
+        return collection.add(stat, tag, runnerInfoId);
     }
 }

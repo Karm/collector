@@ -1,0 +1,54 @@
+{
+  "tag": "mehTagC",
+  "img_name": "quarkus-integration-test-no-awt-999-SNAPSHOT-runner-XXX",
+  "generator_version": "Mandrel-23.1.1.0-Final",
+  "image_size_stats": {
+    "total_bytes": 60671704,
+    "code_cache_bytes": 28291136,
+    "heap_bytes": 31965184,
+    "resources_bytes": 1613728,
+    "resources_count": 202,
+    "other_bytes": 415384,
+    "debuginfo_bytes": 0
+  },
+  "jni_classes_stats": {
+    "classes": 61,
+    "fields": 59,
+    "methods": 55
+  },
+  "reflection_stats": {
+    "classes": 3949,
+    "fields": 117,
+    "methods": 3178
+  },
+  "build_perf_stats": {
+    "total_build_time_sec": 55.51219548,
+    "gc_time_sec": 5.33,
+    "num_cpu_cores": 16,
+    "total_machine_memory": 66847330304,
+    "peak_rss_bytes": 4822646784,
+    "cpu_load": 11.908436489648643
+  },
+  "total_classes_stats": {
+    "classes": 14313,
+    "fields": 32144,
+    "methods": 112776
+  },
+  "reachability_stats": {
+    "classes": 12320,
+    "fields": 19161,
+    "methods": 62871
+  },
+  "runner_info": {
+    "test_version": "999-SNAPSHOT 9fc4e97d",
+    "graalvm_version": "Mandrel-23.1.1.0-Final",
+    "quarkus_version": "999-SNAPSHOT",
+    "jdk_version": "21.0.1+12-LTS",
+    "operating_system": "Linux",
+    "architecture": "x86_64",
+    "memory_size_bytes": 66847330304,
+    "memory_available_bytes": 174811906921,
+    "description": "Quarkus Integration Tests",
+    "triggered_by": "https://github.com/quarkusio/quarkus/pull/66666666"
+  }
+}

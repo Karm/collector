@@ -9,6 +9,6 @@
 # "architecture": "x86_64",
   "memory_size_bytes": 274877906944,
   "memory_available_bytes": 174811906921,
-# "gh_pr": "https://github.com/quarkusio/quarkus/pull/31490",
+# "triggered_by": "https://github.com/quarkusio/quarkus/pull/31490",
   "description": "Github Runner 666"
 }

@@ -25,6 +25,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,13 +45,23 @@ public class ImageStatsCollection {
     EntityManager em;
 
     @Transactional
-    public ImageStats add(ImageStats stat, Long runnerInfoId) {
-        if (runnerInfoId != null) {
-            stat.setRunnerInfo(getSingleRunnerInfo(runnerInfoId));
+    public ImageStats add(ImageStats stat, String tag, Long runnerInfoId) {
+        if (tag != null) {
+            stat.setTag(tag);
         }
-        // Could we receive stat with runnerInfo already set...
-        if (stat.getRunnerInfo() != null) {
-            if (stat.getRunnerInfo().id == null) {
+        if (runnerInfoId != null) {
+            // Override the RunnerInfo if the ID is provided.
+            final RunnerInfo runnerInfo = getSingleRunnerInfo(runnerInfoId);
+            if (runnerInfo == null) {
+                throw new WebApplicationException("RunnerInfo with ID " + runnerInfoId + " not found.",
+                        Response.Status.NOT_FOUND);
+            }
+            stat.setRunnerInfo(runnerInfo);
+        } else {
+            if (stat.getRunnerInfo() != null && stat.getRunnerInfo().id == null) {
+                // If the RunnerInfo is not persisted yet, do it now
+                // to avoid a "save the transient instance before flushing" exception.
+                stat.getRunnerInfo().setCreatedAt(new Date());
                 em.persist(stat.getRunnerInfo());
             }
         }
@@ -87,15 +99,11 @@ public class ImageStatsCollection {
                 .collect(HashMap::new, (m, t) -> m.put(t.get(1, Long.class), t.get(0, String.class)), HashMap::putAll);
     }
 
-    public ImageStats[] getAllByGhPR(String ghPR) {
-        return em.createNamedQuery("ImageStats.findByGhPR", ImageStats.class)
-                .setParameter("ghPR", ghPR)
-                .getResultList().toArray(new ImageStats[0]);
-    }
-
-    public ImageStats[] getAllByRunnerInfo(Long runnerInfoId) {
-        return em.createNamedQuery("ImageStats.findByRunnerInfoId", ImageStats.class)
-                .setParameter("runnerInfoId", runnerInfoId)
+    public ImageStats[] lookup(String what, ImageStats.SearchableRunnerInfo where, boolean wildcard) {
+        final String q = "SELECT s FROM ImageStats s WHERE s.runnerInfo." + where.column + " " +
+                (wildcard ? "LIKE CONCAT('%',:" + where.column + ",'%')" : "= :" + where.column) + " ORDER BY s.imageName";
+        return em.createQuery(q, ImageStats.class)
+                .setParameter(where.column, what)
                 .getResultList().toArray(new ImageStats[0]);
     }
 
@@ -105,7 +113,11 @@ public class ImageStatsCollection {
 
     @Transactional
     public ImageStats deleteOne(long id) {
-        ImageStats stat = getSingle(id);
+        final ImageStats stat = getSingle(id);
+        if (stat == null) {
+            throw new WebApplicationException("ImageStats with ID " + id + " not found.",
+                    Response.Status.NOT_FOUND);
+        }
         em.remove(stat);
         return stat;
     }
@@ -154,6 +166,7 @@ public class ImageStatsCollection {
             return null;
         }
         if (info != null) {
+            info.setCreatedAt(new Date());
             em.persist(info);
             stat.setRunnerInfo(info);
         }
@@ -168,15 +181,21 @@ public class ImageStatsCollection {
 
     @Transactional
     public RunnerInfo add(RunnerInfo runnerInfo) {
+        runnerInfo.setCreatedAt(new Date());
         em.persist(runnerInfo);
         return runnerInfo;
     }
 
-    // TODO: What to do with the stats? We leave them
-    // without runner info? Delete them too?
+    /**
+     * RunnerInfo is optional, so we don't delete the attached stats alongside with it.
+     */
     @Transactional
     public RunnerInfo deleteRunnerInfo(long id) {
         final RunnerInfo r = getSingleRunnerInfo(id);
+        if (r == null) {
+            throw new WebApplicationException("RunnerInfo with ID " + id + " not found.",
+                    Response.Status.NOT_FOUND);
+        }
         em.remove(r);
         return r;
     }

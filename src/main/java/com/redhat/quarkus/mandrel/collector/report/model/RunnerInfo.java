@@ -23,6 +23,8 @@ package com.redhat.quarkus.mandrel.collector.report.model;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
@@ -30,11 +32,15 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+
+import java.util.Date;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Entity
 @Table(name = "runner_info", indexes = {
-        @Index(columnList = "testVersion, graalvmVersion, quarkusVersion, jdkVersion, description, ghPR") })
+        @Index(columnList = "created_at, testVersion, graalvmVersion, quarkusVersion, jdkVersion, description, triggeredBy") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER, name = "stats_type")
 public class RunnerInfo extends PanacheEntity {
@@ -48,7 +54,12 @@ public class RunnerInfo extends PanacheEntity {
     private long memorySizeBytes;
     private long memoryAvailableBytes;
     private String description;
-    private String ghPR;
+    private String triggeredBy;
+    // We use undersoce for the column name for consistency with ImageStats.
+    @Basic
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", nullable = false)
+    private Date createdAt;
 
     public String getTestVersion() {
         return testVersion;
@@ -122,11 +133,19 @@ public class RunnerInfo extends PanacheEntity {
         this.description = description;
     }
 
-    public String getGhPR() {
-        return ghPR;
+    public String getTriggeredBy() {
+        return triggeredBy;
     }
 
-    public void setGhPR(String ghPR) {
-        this.ghPR = ghPR;
+    public void setTriggeredBy(String triggeredBy) {
+        this.triggeredBy = triggeredBy;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 }

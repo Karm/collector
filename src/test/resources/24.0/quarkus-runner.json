@@ -8,5 +8,5 @@
   "memory_size_bytes": 174877906944,
   "memory_available_bytes": 124811906921,
   "description": "Quarkus Integration Tests",
-  "gh_pr": "https://github.com/quarkusio/quarkus/pull/66666666"
+  "triggered_by": "https://github.com/quarkusio/quarkus/pull/66666666"
 }

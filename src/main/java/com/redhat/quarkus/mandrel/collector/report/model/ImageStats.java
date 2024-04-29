@@ -58,13 +58,6 @@ import jakarta.persistence.Table;
 @NamedQuery(name = "ImageStats.deleteByImageNameAndDate",
         query = "DELETE FROM ImageStats s WHERE s.imageName = :image_name AND "
                 + "s.createdAt > :date_created_oldest AND s.createdAt < :date_created_newest")
-/*
- * RunnerInfo lookup
- */
-@NamedQuery(name = "ImageStats.findByGhPR",
-        query = "SELECT s FROM ImageStats s WHERE s.runnerInfo.ghPR = :ghPR ORDER BY s.imageName")
-@NamedQuery(name = "ImageStats.findByRunnerInfoId",
-        query = "SELECT s FROM ImageStats s WHERE s.runnerInfo.id = :runnerInfoId ORDER BY s.imageName")
 //@formatter:on
 public class ImageStats extends TimestampedEntity {
     @JsonProperty("tag")
@@ -117,6 +110,22 @@ public class ImageStats extends TimestampedEntity {
     @SequenceGenerator(name = "imageStatsSeq", sequenceName = "image_stats_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(generator = "imageStatsSeq")
     private long id;
+
+    public enum SearchableRunnerInfo {
+        ID("id"),
+        TEST_VERSION("testVersion"),
+        GRAALVM_VERSION("graalvmVersion"),
+        QUARKUS_VERSION("quarkusVersion"),
+        JDK_VERSION("jdkVersion"),
+        DESCRIPTION("description"),
+        TRIGGERED_BY("triggeredBy");
+
+        public final String column;
+
+        SearchableRunnerInfo(String column) {
+            this.column = column;
+        }
+    }
 
     public ImageStats(String name) {
         this.imageName = name;

@@ -98,7 +98,7 @@ public class GraalImageStatsResourceTest {
         assertEquals("foo-bar", result.getImageName());
         assertEquals("Github Runner 2.315.0", result.getRunnerInfo().getDescription());
         assertEquals(274877906944L, result.getRunnerInfo().getMemorySizeBytes());
-        assertEquals("https://github.com/quarkusio/quarkus/pull/31490", result.getRunnerInfo().getGhPR());
+        assertEquals("https://github.com/quarkusio/quarkus/pull/31490", result.getRunnerInfo().getTriggeredBy());
 
         // Ensure we can listOne the result
         given().contentType(ContentType.JSON).header("token", token).when()
