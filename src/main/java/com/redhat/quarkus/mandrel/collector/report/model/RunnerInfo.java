@@ -55,7 +55,7 @@ public class RunnerInfo extends PanacheEntity {
     private long memoryAvailableBytes;
     private String description;
     private String triggeredBy;
-    // We use undersoce for the column name for consistency with ImageStats.
+    // We use underscore for the column name for consistency with ImageStats.
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
