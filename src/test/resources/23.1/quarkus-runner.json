@@ -1,0 +1,12 @@
+{
+  "test_version": "999-SNAPSHOT 9fc4e97d",
+  "graalvm_version": "Mandrel-23.1.1.0-Final",
+  "quarkus_version": "999-SNAPSHOT",
+  "jdk_version": "21.0.1+12-LTS",
+  "operating_system": "Linux",
+  "architecture": "x86_64",
+  "memory_size_bytes": 66847330304,
+  "memory_available_bytes": 22847330304,
+  "description": "Quarkus Integration Tests",
+  "triggered_by": "https://github.com/quarkusio/quarkus/pull/66666666"
+}

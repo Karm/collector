@@ -27,6 +27,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -101,7 +102,7 @@ public class ImageStats extends TimestampedEntity {
     private ReachableImageStats reachableStats;
 
     @JsonProperty("runner_info")
-    @OneToOne(optional = true, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = true, cascade = CascadeType.MERGE)
     @JoinColumn(name = "runner_info_id")
     private RunnerInfo runnerInfo;
 
@@ -109,6 +110,22 @@ public class ImageStats extends TimestampedEntity {
     @SequenceGenerator(name = "imageStatsSeq", sequenceName = "image_stats_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(generator = "imageStatsSeq")
     private long id;
+
+    public enum SearchableRunnerInfo {
+        ID("id"),
+        TEST_VERSION("testVersion"),
+        GRAALVM_VERSION("graalvmVersion"),
+        QUARKUS_VERSION("quarkusVersion"),
+        JDK_VERSION("jdkVersion"),
+        DESCRIPTION("description"),
+        TRIGGERED_BY("triggeredBy");
+
+        public final String column;
+
+        SearchableRunnerInfo(String column) {
+            this.column = column;
+        }
+    }
 
     public ImageStats(String name) {
         this.imageName = name;

@@ -22,12 +22,11 @@ package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
+import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalBuildInfo;
 import io.quarkus.runtime.util.StringUtil;
-import io.smallrye.common.constraint.NotNull;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -52,10 +51,19 @@ import org.jboss.logging.Logger;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.DESCRIPTION;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.GRAALVM_VERSION;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.ID;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.JDK_VERSION;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.QUARKUS_VERSION;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.TEST_VERSION;
+import static com.redhat.quarkus.mandrel.collector.report.model.ImageStats.SearchableRunnerInfo.TRIGGERED_BY;
 import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection.CREATED_DATE_FORMAT;
 import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection.CREATED_DATE_FORMATTER;
 
@@ -66,12 +74,11 @@ import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollec
 public class ImageStatsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ImageStatsResource.class.getName());
-    private final ImageStatsCollection collection;
 
-    public ImageStatsResource(ImageStatsCollection collection) {
-        this.collection = collection;
-    }
+    @Inject
+    ImageStatsCollection collection;
 
+    // TODO: Paging
     @RolesAllowed("token_read")
     @GET
     public ImageStats[] list() {
@@ -90,6 +97,37 @@ public class ImageStatsResource {
     @Path("tag/{tag}")
     public ImageStats[] getByTag(@PathParam("tag") String tag) {
         return collection.getAllByTag(tag);
+    }
+
+    @RolesAllowed("token_read")
+    @GET
+    @Path("lookup/runner-info/{column}")
+    public ImageStats[] lookupTest(@QueryParam("key") String key, @QueryParam("wildcard") boolean wildcard,
+            @PathParam("column") String column) {
+
+        if (key == null) {
+            throw new WebApplicationException("key must not be null", Status.BAD_REQUEST);
+        }
+        if (TEST_VERSION.column.equals(column)) {
+            return collection.lookup(key, TEST_VERSION, wildcard);
+        } else if (GRAALVM_VERSION.column.equals(column)) {
+            return collection.lookup(key, GRAALVM_VERSION, wildcard);
+        } else if (QUARKUS_VERSION.column.equals(column)) {
+            return collection.lookup(key, QUARKUS_VERSION, wildcard);
+        } else if (JDK_VERSION.column.equals(column)) {
+            return collection.lookup(key, JDK_VERSION, wildcard);
+        } else if (DESCRIPTION.column.equals(column)) {
+            return collection.lookup(key, DESCRIPTION, wildcard);
+        } else if (TRIGGERED_BY.column.equals(column)) {
+            return collection.lookup(key, TRIGGERED_BY, wildcard);
+        } else if (ID.column.equals(column)) {
+            return collection.lookup(key, ID, false);
+        }
+        throw new WebApplicationException("column must be one of " +
+                Arrays.stream(ImageStats.SearchableRunnerInfo.values())
+                        .map(info -> info.column)
+                        .collect(Collectors.joining(", ")),
+                Status.BAD_REQUEST);
     }
 
     @RolesAllowed("token_read")
@@ -174,14 +212,15 @@ public class ImageStatsResource {
 
     @RolesAllowed("token_write")
     @POST
-    public ImageStats add(@NotNull ImageStats stat, @QueryParam("t") String tag) {
+    public ImageStats add(ImageStats stat, @QueryParam("t") String tag, @QueryParam("runnerid") Long runnerInfoId) {
+        if (stat == null) {
+            throw new WebApplicationException("ImageStats must not be null",
+                    Status.BAD_REQUEST);
+        }
         if (stat.getId() > 0) {
             throw new WebApplicationException("Id was invalidly set on request.", 422);
         }
-        if (tag != null) {
-            stat.setTag(tag);
-        }
-        return collection.add(stat);
+        return collection.add(stat, tag, runnerInfoId);
     }
 
     @RolesAllowed("token_write")
@@ -190,7 +229,7 @@ public class ImageStatsResource {
     public ImageStats updateBuildTime(@PathParam("statId") Long statId, GraalBuildInfo info) {
         if (info == null) {
             throw new WebApplicationException("GraalBuildInfo for statId " + statId + " must not be null",
-                    Status.INTERNAL_SERVER_ERROR);
+                    Status.BAD_REQUEST);
         }
         final ImageStats stat = collection.updateBuildTime(statId, info.getTotalBuildTimeMilis());
         if (stat == null) {
@@ -205,7 +244,7 @@ public class ImageStatsResource {
     public ImageStats updateRunnerInfo(@PathParam("statId") Long statId, RunnerInfo info) {
         if (info == null) {
             throw new WebApplicationException("RunnerInfo for statId " + statId + " must not be null",
-                    Status.INTERNAL_SERVER_ERROR);
+                    Status.BAD_REQUEST);
         }
         final ImageStats stat = collection.updateRunnerInfo(statId, info);
         if (stat == null) {
@@ -215,8 +254,25 @@ public class ImageStatsResource {
     }
 
     @RolesAllowed("token_write")
+    @POST
+    @Path("runner-info")
+    public RunnerInfo createRunnerInfo(RunnerInfo info) {
+        if (info == null) {
+            throw new WebApplicationException("RunnerInfo must not be null", Status.BAD_REQUEST);
+        }
+        return collection.add(info);
+    }
+
+    @RolesAllowed("token_write")
     @DELETE
-    @Path("{statId}")
+    @Path("runner-info/{runnerId:\\d+}")
+    public RunnerInfo deleteRunnerInfo(@PathParam("runnerId") Long runnerId) {
+        return collection.deleteRunnerInfo(runnerId);
+    }
+
+    @RolesAllowed("token_write")
+    @DELETE
+    @Path("{statId:\\d+}")
     public ImageStats delete(@PathParam("statId") Long statId) {
         return collection.deleteOne(statId);
     }
@@ -224,6 +280,9 @@ public class ImageStatsResource {
     @RolesAllowed("token_write")
     @DELETE
     public ImageStats[] deleteMany(Long[] ids) {
+        if (ids == null) {
+            throw new WebApplicationException("ids must not be null", Status.BAD_REQUEST);
+        }
         return collection.deleteMany(ids);
     }
 
@@ -270,7 +329,7 @@ public class ImageStatsResource {
                 code = ((WebApplicationException) exception).getResponse().getStatus();
             }
 
-            ObjectNode exceptionJson = objectMapper.createObjectNode();
+            final ObjectNode exceptionJson = objectMapper.createObjectNode();
             exceptionJson.put("exceptionType", exception.getClass().getName());
             exceptionJson.put("code", code);
 
@@ -280,6 +339,5 @@ public class ImageStatsResource {
 
             return Response.status(code).entity(exceptionJson).build();
         }
-
     }
 }

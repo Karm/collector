@@ -6,6 +6,7 @@ import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.graal.GraalStats;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -21,23 +22,19 @@ import jakarta.ws.rs.core.Response.Status;
 public class GraalImageStatsResource {
 
     private static final StatsAdapter ADAPTER = new StatsAdapter();
-    private final ImageStatsCollection collection;
 
-    public GraalImageStatsResource(ImageStatsCollection collection) {
-        this.collection = collection;
-    }
+    @Inject
+    ImageStatsCollection collection;
 
     @RolesAllowed("token_write")
     @Path("import")
     @POST
-    public ImageStats importStat(GraalStats importStat, @QueryParam("t") String tag) throws WebApplicationException {
+    public ImageStats importStat(GraalStats importStat, @QueryParam("t") String tag, @QueryParam("runnerid") Long runnerInfoId)
+            throws WebApplicationException {
         if (importStat == null) {
-            throw new WebApplicationException("GraalStats must not be null", Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException("GraalStats must not be null", Status.BAD_REQUEST);
         }
         final ImageStats stat = ADAPTER.adapt(importStat);
-        if (tag != null) {
-            stat.setTag(tag);
-        }
-        return collection.add(stat);
+        return collection.add(stat, tag, runnerInfoId);
     }
 }

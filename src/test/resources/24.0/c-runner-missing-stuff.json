@@ -1,12 +1,14 @@
-# We drop # prefied "comments" like this from the string.
+# In the test harness, we drop # prefixed "comments"
+# like this from the string.
 {
   "test_version": "1.0.0",
-  "mandrel_version": "24.0.0",
+  "graalvm_version": "24.0.0",
   "quarkus_version": "3.8.4.Final",
   "jdk_version": "17.0.7",
-#  "operating_system": "Linux",
-#  "architecture": "x86_64",
+# "operating_system": "Linux",
+# "architecture": "x86_64",
   "memory_size_bytes": 274877906944,
   "memory_available_bytes": 174811906921,
+# "triggered_by": "https://github.com/quarkusio/quarkus/pull/31490",
   "description": "Github Runner 666"
 }
