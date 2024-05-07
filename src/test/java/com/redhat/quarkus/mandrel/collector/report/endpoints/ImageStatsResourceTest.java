@@ -140,7 +140,7 @@ public class ImageStatsResourceTest {
 
             TestUtil.checkLog();
         } finally {
-            // Delete ImageStats:
+            // Delete ImageStats
             Stream.of(rA.getId(), rB.getId(), rC.getId(), rD.getId()).forEach(id -> {
                 given().contentType(ContentType.JSON).header("token", token).when()
                         .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200);
@@ -214,7 +214,60 @@ public class ImageStatsResourceTest {
 
             TestUtil.checkLog();
         } finally {
-            // Delete ImageStats:
+            // Delete ImageStats
+            statsIdToDelete.forEach(id -> given().contentType(ContentType.JSON).header("token", token).when()
+                    .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200));
+            // Delete RunnerInfo
+            rIdToDelete.forEach(id -> given().contentType(ContentType.JSON).header("token", token).when()
+                    .delete(StatsTestHelper.BASE_URL + "/runner-info/" + id).then().statusCode(200));
+        }
+    }
+
+    @Test
+    public void testImportOldAndNewOneRunnerInfo() throws Exception {
+        final String runnerInfo = StatsTestHelper.getStatString("mandrel-it-app/runner-info.json");
+        final String m22Stats = StatsTestHelper.getStatString("mandrel-it-app/q-2.13.3-m-22.3.5.json");
+        final String m22Timing = StatsTestHelper.getStatString("mandrel-it-app/q-2.13.3-m-22.3.5-timing.json");
+        final String m24Stats = StatsTestHelper.getStatString("mandrel-it-app/q-3.9.5-m-24.0.1.json");
+        final String token = StatsTestHelper.login(Mode.READ_WRITE);
+        final List<Long> rIdToDelete = new ArrayList<>();
+        final List<Long> statsIdToDelete = new ArrayList<>();
+
+        try {
+            final RunnerInfo r = given().contentType(ContentType.JSON).header("token", token).body(runnerInfo)
+                    .when().post(StatsTestHelper.BASE_URL + "/runner-info").body()
+                    .as(RunnerInfo.class);
+            rIdToDelete.add(r.id);
+
+            final ImageStats s22 = given().contentType(ContentType.JSON).header("token", token).body(m22Stats)
+                    .when().post(StatsTestHelper.BASE_URL + "/import?t=mehTagA" + "&runnerid=" + r.id).body()
+                    .as(ImageStats.class);
+            statsIdToDelete.add(s22.getId());
+
+            given().contentType(ContentType.JSON).header("token", token).body(m22Timing)
+                    .when().put(StatsTestHelper.BASE_URL + "/" + s22.getId()).body()
+                    .as(ImageStats.class);
+
+            final ImageStats s24 = given().contentType(ContentType.JSON).header("token", token).body(m24Stats)
+                    .when().post(StatsTestHelper.BASE_URL + "/import?t=mehTagB" + "&runnerid=" + r.id).body()
+                    .as(ImageStats.class);
+            statsIdToDelete.add(s24.getId());
+
+            final ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/lookup/runner-info/id?key=" + r.id).body()
+                    .as(ImageStats[].class);
+
+            assertEquals(2, results.length);
+            assertEquals("mp-orm-dbs-awt-runner", results[0].getImageName());
+            assertEquals("mp-orm-dbs-awt-runner", results[1].getImageName());
+            assertEquals(25610, results[0].getReachableStats().getNumClasses());
+            assertEquals(32361, results[1].getReachableStats().getNumClasses());
+            assertEquals(115.72, results[0].getResourceStats().getTotalTimeSeconds());
+            assertEquals(123.965628838, results[1].getResourceStats().getTotalTimeSeconds());
+
+            TestUtil.checkLog();
+        } finally {
+            // Delete ImageStats
             statsIdToDelete.forEach(id -> given().contentType(ContentType.JSON).header("token", token).when()
                     .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200));
             // Delete RunnerInfo
@@ -276,7 +329,7 @@ public class ImageStatsResourceTest {
 
             TestUtil.checkLog();
         } finally {
-            // Delete ImageStats:
+            // Delete ImageStats
             statsIdToDelete.forEach(id -> given().contentType(ContentType.JSON).header("token", token).when()
                     .delete(StatsTestHelper.BASE_URL + "/" + id).then().statusCode(200));
             // Delete RunnerInfo

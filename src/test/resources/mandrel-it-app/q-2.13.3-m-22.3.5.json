@@ -1,0 +1,57 @@
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 66847318016,
+      "peak_rss_bytes": 6583054336
+    },
+    "garbage_collection": {
+      "count": 82,
+      "total_secs": 8.532
+    },
+    "cpu": {
+      "load": 9.930007920382934,
+      "total_cores": 16
+    }
+  },
+  "image_details": {
+    "code_area": {
+      "bytes": 52860384,
+      "compilation_units": 82061
+    },
+    "total_bytes": 109019824,
+    "image_heap": {
+      "bytes": 52584448,
+      "resources": {
+        "bytes": 1472027,
+        "count": 47
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 11.4.1)",
+    "name": "mp-orm-dbs-awt-runner",
+    "java_version": "17.0.10+7",
+    "garbage_collector": "Serial GC",
+    "graalvm_version": "GraalVM 22.3.5.0-Final Java 17 Mandrel Distribution"
+  },
+  "analysis_results": {
+    "methods": {
+      "total": 216073,
+      "reflection": 4464,
+      "jni": 2092,
+      "reachable": 126437
+    },
+    "classes": {
+      "total": 27801,
+      "reflection": 852,
+      "jni": 178,
+      "reachable": 25610
+    },
+    "fields": {
+      "total": 62040,
+      "reflection": 533,
+      "jni": 1535,
+      "reachable": 40459
+    }
+  }
+}
