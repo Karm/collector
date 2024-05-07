@@ -40,7 +40,7 @@ import java.util.Date;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Entity
 @Table(name = "runner_info", indexes = {
-        @Index(columnList = "created_at, testVersion, graalvmVersion, quarkusVersion, jdkVersion, description, triggeredBy") })
+        @Index(columnList = "testVersion, graalvmVersion, quarkusVersion, triggeredBy") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER, name = "stats_type")
 public class RunnerInfo extends PanacheEntity {
