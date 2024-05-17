@@ -1,0 +1,9 @@
+{
+  "test_version": "Mandrel Integration Testsuite 8a8cf76",
+  "operating_system": "GNU/Linux",
+  "architecture": "x86_64",
+  "memory_size_bytes": 66847318016,
+  "memory_available_bytes": 35653451776,
+  "description": "Quarkus MP ORM AWT Performance Check",
+  "triggered_by": "Manual run"
+}

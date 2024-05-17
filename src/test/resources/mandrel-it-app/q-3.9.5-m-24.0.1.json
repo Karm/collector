@@ -1,0 +1,75 @@
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 66847318016,
+      "peak_rss_bytes": 7367036928
+    },
+    "garbage_collection": {
+      "count": 124,
+      "total_secs": 14.475,
+      "max_heap": 7635730432
+    },
+    "cpu": {
+      "load": 11.259856429362925,
+      "parallelism": 16,
+      "total_cores": 16
+    },
+    "total_secs": 123.965628838
+  },
+  "image_details": {
+    "code_area": {
+      "bytes": 69815536,
+      "compilation_units": 105403
+    },
+    "total_bytes": 145008760,
+    "image_heap": {
+      "bytes": 74756096,
+      "objects": {
+        "count": 763123
+      },
+      "resources": {
+        "bytes": 1901600,
+        "count": 116
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 11.4.1)",
+    "name": "mp-orm-dbs-awt-runner",
+    "java_version": "22.0.1+8",
+    "garbage_collector": "Serial GC",
+    "graal_compiler": {
+      "march": "x86-64-v3",
+      "optimization_level": "2"
+    },
+    "vendor_version": "Mandrel-24.0.1.0-Final",
+    "graalvm_version": "Mandrel-24.0.1.0-Final"
+  },
+  "analysis_results": {
+    "types": {
+      "total": 35881,
+      "reflection": 9406,
+      "jni": 191,
+      "reachable": 32361
+    },
+    "methods": {
+      "foreign_downcalls": -1,
+      "total": 278345,
+      "reflection": 6742,
+      "jni": 2388,
+      "reachable": 161140
+    },
+    "classes": {
+      "total": 35881,
+      "reflection": 9406,
+      "jni": 191,
+      "reachable": 32361
+    },
+    "fields": {
+      "total": 85851,
+      "reflection": 602,
+      "jni": 1711,
+      "reachable": 49992
+    }
+  }
+}
