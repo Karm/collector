@@ -571,6 +571,14 @@ public class ImageStatsResourceTest {
         return createImageStat(name, null);
     }
 
+    @Test
+    public void testSchemaEndPoint() throws Exception {
+        String token = StatsTestHelper.login(Mode.READ);
+        given().when().contentType(ContentType.JSON).header("token", token).get(StatsTestHelper.BASE_URL + "/schema")
+                .then().statusCode(200).body(containsString("created_at"), containsString("img_name"));
+        TestUtil.checkLog();
+    }
+
     private ImageStats createImageStat(String name, String tag) {
         ImageStats imageStats = new ImageStats(name);
         imageStats.setGraalVersion("GraalVM 21.3 (Java 17) Mandrel Distribution");

@@ -20,6 +20,7 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -59,6 +60,7 @@ public class RunnerInfo extends PanacheEntity {
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date createdAt;
 
     public String getTestVersion() {
