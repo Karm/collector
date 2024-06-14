@@ -43,6 +43,9 @@ import jakarta.persistence.Table;
 @NamedQuery(name = "ImageStats.findByImageName",
         query = "SELECT s FROM ImageStats s "
                 + "WHERE s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
+@NamedQuery(name = "ImageStats.findByImageNameAndTag",
+        query = "SELECT s FROM ImageStats s "
+                + "WHERE s.imageName = :image_name AND s.tag = :tag_name ORDER BY s.createdAt")
 @NamedQuery(name = "ImageStats.distinctTags",
         query = "SELECT distinct s.tag FROM ImageStats s")
 /*

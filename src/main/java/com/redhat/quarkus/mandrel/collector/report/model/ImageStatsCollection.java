@@ -84,6 +84,13 @@ public class ImageStatsCollection {
                 .getResultList().toArray(new ImageStats[0]);
     }
 
+    public ImageStats[] getAllByImageNameAndTag(String imgName, String tag) {
+        return em.createNamedQuery("ImageStats.findByImageNameAndTag", ImageStats.class)
+                .setParameter("image_name", imgName)
+                .setParameter("tag_name", tag)
+                .getResultList().toArray(new ImageStats[0]);
+    }
+
     public String[] getDistinctTags() {
         return em.createNamedQuery("ImageStats.distinctTags", String.class).getResultList().toArray(new String[0]);
     }

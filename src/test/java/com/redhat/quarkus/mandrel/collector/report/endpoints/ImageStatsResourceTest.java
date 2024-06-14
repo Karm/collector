@@ -460,8 +460,20 @@ public class ImageStatsResourceTest {
         assertTrue(result.getId() > 0);
         statIds.add(result.getId());
 
+        // Find stats by tag and name
+        ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token).param("imgName", "foo-stat")
+                .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
+        assertEquals(1, results.length);
+        for (ImageStats s : results) {
+            assertEquals(myTag, s.getTag());
+            assertEquals("foo-stat", s.getImageName());
+        }
+        results = given().when().contentType(ContentType.JSON).header("token", token).param("imgName", "third")
+                .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
+        assertEquals(0, results.length);
+
         // Find stats by tag
-        ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+        results = given().when().contentType(ContentType.JSON).header("token", token)
                 .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
         assertEquals(2, results.length);
         for (ImageStats s : results) {
