@@ -99,7 +99,10 @@ public class ImageStatsResource {
     @RolesAllowed("token_read")
     @GET
     @Path("tag/{tag}")
-    public ImageStats[] getByTag(@PathParam("tag") String tag) {
+    public ImageStats[] getByTag(@PathParam("tag") String tag, @QueryParam("imgName") String imgName) {
+        if (!StringUtil.isNullOrEmpty(imgName)) {
+            return collection.getAllByImageNameAndTag(imgName, tag);
+        }
         return collection.getAllByTag(tag);
     }
 
