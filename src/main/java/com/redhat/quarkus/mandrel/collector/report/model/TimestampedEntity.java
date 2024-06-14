@@ -20,6 +20,7 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -36,6 +37,7 @@ public abstract class TimestampedEntity {
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date createdAt;
 
     public Date getCreatedAt() {

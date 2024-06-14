@@ -20,8 +20,11 @@
 
 package com.redhat.quarkus.mandrel.collector.report.endpoints;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStats;
 import com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollection;
 import com.redhat.quarkus.mandrel.collector.report.model.RunnerInfo;
@@ -43,6 +46,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -69,8 +73,8 @@ import static com.redhat.quarkus.mandrel.collector.report.model.ImageStatsCollec
 
 @ApplicationScoped
 @Path("api/v1/image-stats")
-@Produces("application/json")
-@Consumes("application/json")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ImageStatsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ImageStatsResource.class.getName());
@@ -338,6 +342,20 @@ public class ImageStatsResource {
             }
 
             return Response.status(code).entity(exceptionJson).build();
+        }
+    }
+
+    @GET
+    @RolesAllowed("token_read")
+    @Path("schema")
+    public JsonSchema schema() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonSchemaGenerator generator = new JsonSchemaGenerator(mapper);
+        try {
+            return generator.generateSchema(ImageStats.class);
+        } catch (JsonProcessingException e) {
+            throw new WebApplicationException("Failed to generate schema", e);
         }
     }
 }
