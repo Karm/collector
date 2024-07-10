@@ -82,11 +82,33 @@ public class ImageStatsResource {
     @Inject
     ImageStatsCollection collection;
 
+    /**
+     * List all ImageStats or based on tag, image name, or creation time.
+     *
+     * @param tag The tag to filter by
+     * @param imgName The image name to filter by
+     * @param newerThan The oldest creation time to filter by in yyyy-MM-dd HH:mm:ss.SSS format in UTC timezone
+     * @param olderThan The newest creation time to filter by in yyyy-MM-dd HH:mm:ss.SSS format in UTC timezone
+     * @return An array of ImageStats
+     */
     // TODO: Paging
     @RolesAllowed("token_read")
     @GET
-    public ImageStats[] list() {
-        return collection.getAll();
+    public ImageStats[] list(
+            @QueryParam("tag") String tag,
+            @QueryParam("imgName") String imgName,
+            @QueryParam("newerThan") String newerThan,
+            @QueryParam("olderThan") String olderThan) {
+        if (!StringUtil.isNullOrEmpty(tag) && !StringUtil.isNullOrEmpty(imgName)) {
+            return collection.getAllByImageNameAndTag(newerThan, olderThan, imgName, tag);
+        }
+        if (!StringUtil.isNullOrEmpty(tag)) {
+            return collection.getAllByTag(newerThan, olderThan, tag);
+        }
+        if (!StringUtil.isNullOrEmpty(imgName)) {
+            return collection.getAllByImageName(newerThan, olderThan, imgName);
+        }
+        return collection.getAll(newerThan, olderThan);
     }
 
     @RolesAllowed("token_read")

@@ -38,11 +38,24 @@ import jakarta.persistence.Table;
 //@formatter:off
 @NamedQuery(name = "ImageStats.findAll",
         query = "SELECT s FROM ImageStats s ORDER BY s.imageName")
+@NamedQuery(name = "ImageStats.findAllByDate",
+        query = "SELECT s FROM ImageStats s WHERE s.createdAt > :range_start AND s.createdAt < :range_end ORDER BY s.imageName")
 @NamedQuery(name = "ImageStats.findByTag",
         query = "SELECT s FROM ImageStats s WHERE s.tag = :tag_name ORDER BY s.tag, s.imageName")
+@NamedQuery(name = "ImageStats.findByTagAndDate",
+        query = "SELECT s FROM ImageStats s WHERE s.createdAt > :range_start AND s.createdAt < :range_end AND s.tag = :tag_name ORDER BY s.tag, s.imageName")
 @NamedQuery(name = "ImageStats.findByImageName",
         query = "SELECT s FROM ImageStats s "
                 + "WHERE s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
+@NamedQuery(name = "ImageStats.findByImageNameAndDate",
+        query = "SELECT s FROM ImageStats s "
+                + "WHERE s.createdAt > :range_start AND s.createdAt < :range_end AND s.imageName = :image_name ORDER BY s.resourceStats.totalTimeSeconds, s.imageName, s.tag")
+@NamedQuery(name = "ImageStats.findByImageNameAndTag",
+        query = "SELECT s FROM ImageStats s "
+                + "WHERE s.imageName = :image_name AND s.tag = :tag_name ORDER BY s.createdAt")
+@NamedQuery(name = "ImageStats.findByImageNameAndTagAndDate",
+        query = "SELECT s FROM ImageStats s "
+                + "WHERE s.createdAt > :range_start AND s.createdAt < :range_end AND s.imageName = :image_name AND s.tag = :tag_name ORDER BY s.createdAt")
 @NamedQuery(name = "ImageStats.distinctTags",
         query = "SELECT distinct s.tag FROM ImageStats s")
 /*
