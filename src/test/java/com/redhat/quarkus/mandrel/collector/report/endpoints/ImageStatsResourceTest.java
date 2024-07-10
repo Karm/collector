@@ -383,47 +383,49 @@ public class ImageStatsResourceTest {
         String json = StatsTestHelper.getV090StatString();
         GraalStats gStat = StatsTestHelper.parseV090Stat();
 
-        // Import v0.9.0 schema graal json
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                .post(IMPORT_URL + "?t=" + myTag).body();
-        ImageStats result = body.as(ImageStats.class);
-        assertEquals(myTag, result.getTag());
-        assertTrue(result.getId() > 0);
-        assertEquals(gStat.getAnalysisResults().getClassStats().getReachable(),
-                result.getReachableStats().getNumClasses());
-        assertTrue(result.getResourceStats().getTotalTimeSeconds() < 0);
-        statIds.add(result.getId());
+        try {
+            // Import v0.9.0 schema graal json
+            ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                    .post(IMPORT_URL + "?t=" + myTag).body();
+            ImageStats result = body.as(ImageStats.class);
+            assertEquals(myTag, result.getTag());
+            assertTrue(result.getId() > 0);
+            assertEquals(gStat.getAnalysisResults().getClassStats().getReachable(),
+                    result.getReachableStats().getNumClasses());
+            assertTrue(result.getResourceStats().getTotalTimeSeconds() < 0);
+            statIds.add(result.getId());
 
-        // Import v0.9.1 schema graal json
-        json = StatsTestHelper.getV091StatString();
-        gStat = StatsTestHelper.parseV091Stat();
-        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                .post(IMPORT_URL + "?t=" + myTag).body();
-        result = body.as(ImageStats.class);
-        assertEquals(myTag, result.getTag());
-        assertTrue(result.getId() > 0);
-        assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(),
-                result.getReachableStats().getNumClasses());
-        assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
-        statIds.add(result.getId());
+            // Import v0.9.1 schema graal json
+            json = StatsTestHelper.getV091StatString();
+            gStat = StatsTestHelper.parseV091Stat();
+            body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                    .post(IMPORT_URL + "?t=" + myTag).body();
+            result = body.as(ImageStats.class);
+            assertEquals(myTag, result.getTag());
+            assertTrue(result.getId() > 0);
+            assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(),
+                    result.getReachableStats().getNumClasses());
+            assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
+            statIds.add(result.getId());
 
-        // Find stats by tag
-        ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
-                .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
-        assertEquals(2, results.length);
-        for (ImageStats s : results) {
-            assertEquals(myTag, s.getTag());
+            // Find stats by tag
+            ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
+            assertEquals(2, results.length);
+            for (ImageStats s : results) {
+                assertEquals(myTag, s.getTag());
+            }
+        } finally {
+            // Delete them again
+            String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
+            ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
+                    .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
+            assertEquals(2, deletedIds.length);
+
+            // no more image stats
+            given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
+            TestUtil.checkLog();
         }
-
-        // Delete them again
-        String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
-        ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
-                .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
-        assertEquals(2, deletedIds.length);
-
-        // no more image stats
-        given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
-        TestUtil.checkLog();
     }
 
     @Test
@@ -433,51 +435,54 @@ public class ImageStatsResourceTest {
         List<Long> statIds = new ArrayList<>();
         ImageStats stats = createImageStat("foo-stat", myTag);
         String json = toJsonString(stats);
-        ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                .post(StatsTestHelper.BASE_URL).body();
-        ImageStats result = body.as(ImageStats.class);
-        assertEquals(myTag, result.getTag());
-        assertTrue(result.getId() > 0);
-        statIds.add(result.getId());
 
-        // Add another one with a tag using the query param
-        stats = createImageStat("other");
-        json = toJsonString(stats);
-        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                .post(StatsTestHelper.BASE_URL + "?t=" + myTag).body();
-        result = body.as(ImageStats.class);
-        assertEquals(myTag, result.getTag());
-        assertTrue(result.getId() > 0);
-        statIds.add(result.getId());
+        try {
+            ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                    .post(StatsTestHelper.BASE_URL).body();
+            ImageStats result = body.as(ImageStats.class);
+            assertEquals(myTag, result.getTag());
+            assertTrue(result.getId() > 0);
+            statIds.add(result.getId());
 
-        // Add a third one without a tag
-        stats = createImageStat("third");
-        json = toJsonString(stats);
-        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                .post(StatsTestHelper.BASE_URL).body();
-        result = body.as(ImageStats.class);
-        assertNull(result.getTag());
-        assertTrue(result.getId() > 0);
-        statIds.add(result.getId());
+            // Add another one with a tag using the query param
+            stats = createImageStat("other");
+            json = toJsonString(stats);
+            body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                    .post(StatsTestHelper.BASE_URL + "?t=" + myTag).body();
+            result = body.as(ImageStats.class);
+            assertEquals(myTag, result.getTag());
+            assertTrue(result.getId() > 0);
+            statIds.add(result.getId());
 
-        // Find stats by tag
-        ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
-                .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
-        assertEquals(2, results.length);
-        for (ImageStats s : results) {
-            assertEquals(myTag, s.getTag());
-            assertTrue("other".equals(s.getImageName()) || "foo-stat".equals(s.getImageName()));
+            // Add a third one without a tag
+            stats = createImageStat("third");
+            json = toJsonString(stats);
+            body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                    .post(StatsTestHelper.BASE_URL).body();
+            result = body.as(ImageStats.class);
+            assertNull(result.getTag());
+            assertTrue(result.getId() > 0);
+            statIds.add(result.getId());
+
+            // Find stats by tag
+            ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
+            assertEquals(2, results.length);
+            for (ImageStats s : results) {
+                assertEquals(myTag, s.getTag());
+                assertTrue("other".equals(s.getImageName()) || "foo-stat".equals(s.getImageName()));
+            }
+        } finally {
+            // Delete them again
+            String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
+            ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
+                    .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
+            assertEquals(3, deletedIds.length);
+
+            // no more image stats
+            given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
+            TestUtil.checkLog();
         }
-
-        // Delete them again
-        String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
-        ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
-                .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
-        assertEquals(3, deletedIds.length);
-
-        // no more image stats
-        given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
-        TestUtil.checkLog();
     }
 
     @Test
@@ -485,35 +490,38 @@ public class ImageStatsResourceTest {
         String token = StatsTestHelper.login(Mode.READ_WRITE);
         String[] myTags = new String[] { "tag1", "tag2", "tag 3", null };
         List<ImageStats> stats = new ArrayList<>();
-        // Add stats
-        for (int i = 0; i < myTags.length; i++) {
-            String statName = "image_name_" + i + "_" + myTags[i];
-            ImageStats s = createImageStat(statName, myTags[i]);
-            String json = toJsonString(s);
-            ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                    .post(StatsTestHelper.BASE_URL).body();
-            ImageStats result = body.as(ImageStats.class);
-            assertNotEquals(0, result.getId());
-            stats.add(result);
-        }
 
-        // Find distinct tags
-        String[] results = given().when().contentType(ContentType.JSON).header("token", token)
-                .get(StatsTestHelper.BASE_URL + "/tags/distinct").body().as(String[].class);
-        assertEquals(myTags.length, results.length);
-        Set<String> resultsSet = new HashSet<>(Arrays.asList(results));
-        for (String myTag : myTags) {
-            assertTrue(resultsSet.contains(myTags[0]), "Expected resultset to contain: " + myTag);
-        }
+        try {
+            // Add stats
+            for (int i = 0; i < myTags.length; i++) {
+                String statName = "image_name_" + i + "_" + myTags[i];
+                ImageStats s = createImageStat(statName, myTags[i]);
+                String json = toJsonString(s);
+                ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                        .post(StatsTestHelper.BASE_URL).body();
+                ImageStats result = body.as(ImageStats.class);
+                assertNotEquals(0, result.getId());
+                stats.add(result);
+            }
 
-        // Delete them again
-        List<Long> statIds = new ArrayList<>();
-        stats.forEach(a -> statIds.add(a.getId()));
-        String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
-        ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
-                .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
-        assertEquals(4, deletedIds.length);
-        TestUtil.checkLog();
+            // Find distinct tags
+            String[] results = given().when().contentType(ContentType.JSON).header("token", token)
+                    .get(StatsTestHelper.BASE_URL + "/tags/distinct").body().as(String[].class);
+            assertEquals(myTags.length, results.length);
+            Set<String> resultsSet = new HashSet<>(Arrays.asList(results));
+            for (String myTag : myTags) {
+                assertTrue(resultsSet.contains(myTags[0]), "Expected resultset to contain: " + myTag);
+            }
+        } finally {
+            // Delete them again
+            List<Long> statIds = new ArrayList<>();
+            stats.forEach(a -> statIds.add(a.getId()));
+            String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
+            ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
+                    .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
+            assertEquals(4, deletedIds.length);
+            TestUtil.checkLog();
+        }
     }
 
     @Test
