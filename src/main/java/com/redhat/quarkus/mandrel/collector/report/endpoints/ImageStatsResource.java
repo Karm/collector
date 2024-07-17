@@ -85,8 +85,21 @@ public class ImageStatsResource {
     // TODO: Paging
     @RolesAllowed("token_read")
     @GET
-    public ImageStats[] list() {
-        return collection.getAll();
+    public ImageStats[] list(
+            @QueryParam("tag") String tag,
+            @QueryParam("imgName") String imgName,
+            @QueryParam("olderThan") String olderThan,
+            @QueryParam("newerThan") String newerThan) {
+        if (!StringUtil.isNullOrEmpty(tag) && !StringUtil.isNullOrEmpty(imgName)) {
+            return collection.getAllByImageNameAndTag(newerThan, olderThan, imgName, tag);
+        }
+        if (!StringUtil.isNullOrEmpty(tag)) {
+            return collection.getAllByTag(newerThan, olderThan, tag);
+        }
+        if (!StringUtil.isNullOrEmpty(imgName)) {
+            return collection.getAllByImageName(newerThan, olderThan, imgName);
+        }
+        return collection.getAll(newerThan, olderThan);
     }
 
     @RolesAllowed("token_read")
