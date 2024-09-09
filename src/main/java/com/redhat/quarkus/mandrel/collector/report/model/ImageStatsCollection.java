@@ -67,7 +67,10 @@ public class ImageStatsCollection {
                 em.persist(stat.getRunnerInfo());
             }
         }
-        stat.setCreatedAt(new Date());
+        // Don't override the creation date if it's already set.
+        if (stat.getCreatedAt() == null) {
+            stat.setCreatedAt(new Date());
+        }
         em.persist(stat);
         return stat;
     }

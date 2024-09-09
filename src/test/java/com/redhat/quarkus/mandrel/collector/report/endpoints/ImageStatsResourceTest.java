@@ -44,6 +44,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -360,6 +361,9 @@ public class ImageStatsResourceTest {
         ImageStats result = body.as(ImageStats.class);
         assertEquals(imageStats.getGraalVersion(), result.getGraalVersion());
         assertEquals(imageStats.getImageName(), result.getImageName());
+        assertEquals(imageStats.getCreatedAt(), null);
+        assertNotEquals(result.getCreatedAt(), null);
+        assertTrue(result.getCreatedAt().getYear() == Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)).getYear());
         assertTrue(result.getId() > 0);
 
         // Ensure we can listOne the result
