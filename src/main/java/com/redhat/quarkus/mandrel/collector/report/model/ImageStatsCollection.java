@@ -20,6 +20,7 @@
 
 package com.redhat.quarkus.mandrel.collector.report.model;
 
+import io.quarkus.runtime.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -28,6 +29,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,22 +67,75 @@ public class ImageStatsCollection {
                 em.persist(stat.getRunnerInfo());
             }
         }
-        stat.setCreatedAt(new Date());
+        // Don't override the creation date if it's already set.
+        if (stat.getCreatedAt() == null) {
+            stat.setCreatedAt(new Date());
+        }
         em.persist(stat);
         return stat;
     }
 
-    public ImageStats[] getAll() {
-        return em.createNamedQuery("ImageStats.findAll", ImageStats.class).getResultList().toArray(new ImageStats[0]);
+    public ImageStats[] getAll(String newerThan, String olderThan) {
+        if (StringUtil.isNullOrEmpty(olderThan) && StringUtil.isNullOrEmpty(newerThan)) {
+            return em.createNamedQuery("ImageStats.findAll", ImageStats.class)
+                    .getResultList().toArray(new ImageStats[0]);
+        }
+        DateRange dateRange = DateRange.fromString(newerThan, olderThan);
+        return em.createNamedQuery("ImageStats.findAllByDate", ImageStats.class)
+                .setParameter("range_start", dateRange.start)
+                .setParameter("range_end", dateRange.end)
+                .getResultList().toArray(new ImageStats[0]);
     }
 
     public ImageStats[] getAllByTag(String tag) {
-        return em.createNamedQuery("ImageStats.findByTag", ImageStats.class).setParameter("tag_name", tag)
+        return getAllByTag(null, null, tag);
+    }
+
+    public ImageStats[] getAllByTag(String newerThan, String olderThan, String tag) {
+        if (StringUtil.isNullOrEmpty(olderThan) && StringUtil.isNullOrEmpty(newerThan)) {
+            return em.createNamedQuery("ImageStats.findByTag", ImageStats.class)
+                    .setParameter("tag_name", tag)
+                    .getResultList().toArray(new ImageStats[0]);
+        }
+        DateRange dateRange = DateRange.fromString(newerThan, olderThan);
+        return em.createNamedQuery("ImageStats.findByTagAndDate", ImageStats.class)
+                .setParameter("range_start", dateRange.start)
+                .setParameter("range_end", dateRange.end)
+                .setParameter("tag_name", tag)
                 .getResultList().toArray(new ImageStats[0]);
     }
 
     public ImageStats[] getAllByImageName(String imageName) {
-        return em.createNamedQuery("ImageStats.findByImageName", ImageStats.class).setParameter("image_name", imageName)
+        return getAllByImageName(null, null, imageName);
+    }
+
+    public ImageStats[] getAllByImageName(String newerThan, String olderThan, String imageName) {
+        if (StringUtil.isNullOrEmpty(olderThan) && StringUtil.isNullOrEmpty(newerThan)) {
+            return em.createNamedQuery("ImageStats.findByImageName", ImageStats.class)
+                    .setParameter("image_name", imageName)
+                    .getResultList().toArray(new ImageStats[0]);
+        }
+        DateRange dateRange = DateRange.fromString(newerThan, olderThan);
+        return em.createNamedQuery("ImageStats.findByImageNameAndDate", ImageStats.class)
+                .setParameter("range_start", dateRange.start)
+                .setParameter("range_end", dateRange.end)
+                .setParameter("image_name", imageName)
+                .getResultList().toArray(new ImageStats[0]);
+    }
+
+    public ImageStats[] getAllByImageNameAndTag(String newerThan, String olderThan, String imgName, String tag) {
+        if (StringUtil.isNullOrEmpty(newerThan) && StringUtil.isNullOrEmpty(olderThan)) {
+            return em.createNamedQuery("ImageStats.findByImageNameAndTag", ImageStats.class)
+                    .setParameter("image_name", imgName)
+                    .setParameter("tag_name", tag)
+                    .getResultList().toArray(new ImageStats[0]);
+        }
+        DateRange dateRange = DateRange.fromString(newerThan, olderThan);
+        return em.createNamedQuery("ImageStats.findByImageNameAndTagAndDate", ImageStats.class)
+                .setParameter("range_start", dateRange.start)
+                .setParameter("range_end", dateRange.end)
+                .setParameter("image_name", imgName)
+                .setParameter("tag_name", tag)
                 .getResultList().toArray(new ImageStats[0]);
     }
 
@@ -198,5 +253,41 @@ public class ImageStatsCollection {
         }
         em.remove(r);
         return r;
+    }
+}
+
+class DateRange {
+    final Date start;
+    final Date end;
+
+    private DateRange(Date start, Date end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    /**
+     * Parse the start and end date strings and return a DateRange object.
+     * If one of the dates is null, it will be set to the minimum or maximum date accordingly.
+     */
+    static DateRange fromString(String start, String end) {
+        if (start == null) {
+            start = "1970-01-01 00:00:00.000";
+        }
+        if (end == null) {
+            end = LocalDateTime.now().format(ImageStatsCollection.CREATED_DATE_FORMATTER);
+        }
+        try {
+            final LocalDateTime startLocal = LocalDateTime.parse(start, ImageStatsCollection.CREATED_DATE_FORMATTER);
+            final LocalDateTime endLocal = LocalDateTime.parse(end, ImageStatsCollection.CREATED_DATE_FORMATTER);
+            if (startLocal.isAfter(endLocal)) {
+                throw new WebApplicationException("olderThan must be before newerThan", Response.Status.BAD_REQUEST);
+            }
+            Date startDate = Date.from(startLocal.toInstant(java.time.ZoneOffset.UTC));
+            Date endDate = Date.from(endLocal.toInstant(java.time.ZoneOffset.UTC));
+            return new DateRange(startDate, endDate);
+        } catch (Exception e) {
+            throw new WebApplicationException("Invalid date format. Use " + ImageStatsCollection.CREATED_DATE_FORMAT,
+                    Response.Status.BAD_REQUEST);
+        }
     }
 }
