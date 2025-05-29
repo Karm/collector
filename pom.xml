@@ -9,7 +9,7 @@
     <properties>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-        <quarkus.platform.version>3.8.5</quarkus.platform.version>
+        <quarkus.platform.version>3.20.1</quarkus.platform.version>
         <compiler-plugin.version>3.12.1</compiler-plugin.version>
         <surefire-plugin.version>3.2.3</surefire-plugin.version>
         <compiler-plugin.version>3.12.1</compiler-plugin.version>
@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+            <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
