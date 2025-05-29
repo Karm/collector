@@ -411,10 +411,19 @@ public class ImageStatsResourceTest {
             assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
             statIds.add(result.getId());
 
+            // Import v0.9.4 schema graal json
+            json = StatsTestHelper.getV094StatString();
+            result = getImageStats(token, json, myTag);
+            gStat = StatsTestHelper.parseJson(json);
+            assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(),
+                    result.getReachableStats().getNumClasses());
+            assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
+            statIds.add(result.getId());
+
             // Find stats by tag
             ImageStats[] results = given().when().contentType(ContentType.JSON).header("token", token)
                     .get(StatsTestHelper.BASE_URL + "/tag/" + myTag).body().as(ImageStats[].class);
-            assertEquals(2, results.length);
+            assertEquals(3, results.length);
             for (ImageStats s : results) {
                 assertEquals(myTag, s.getTag());
             }
@@ -423,7 +432,7 @@ public class ImageStatsResourceTest {
             String imageIdsJson = toJsonString(statIds.toArray(new Long[0]));
             ImageStats[] deletedIds = given().contentType(ContentType.JSON).header("token", token).body(imageIdsJson).when()
                     .delete(StatsTestHelper.BASE_URL).body().as(ImageStats[].class);
-            assertEquals(2, deletedIds.length);
+            assertEquals(3, deletedIds.length);
 
             // no more image stats
             given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));

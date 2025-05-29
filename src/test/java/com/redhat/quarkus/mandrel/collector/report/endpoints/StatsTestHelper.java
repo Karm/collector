@@ -94,6 +94,10 @@ public class StatsTestHelper {
         return getStatString("build-stats-0.9.1.json");
     }
 
+    public static String getV094StatString() {
+        return getStatString("build-stats-0.9.4.json");
+    }
+
     public static String getStatString(String name) {
         try (InputStream is = StatsTestHelper.class.getResourceAsStream("/" + name)) {
             return new String(Objects.requireNonNull(is).readAllBytes(), StandardCharsets.UTF_8)

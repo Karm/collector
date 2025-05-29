@@ -1,0 +1,65 @@
+{
+  "resource_usage": {
+    "memory": {
+      "system_total": 67174731776,
+      "peak_rss_bytes": 3327168512
+    },
+    "garbage_collection": {
+      "count": 17,
+      "max_heap": 1073741824,
+      "total_secs": 0.414
+    },
+    "cpu": {
+      "load": 8.64321608040201,
+      "parallelism": 4,
+      "total_cores": 12
+    },
+    "total_secs": 22.351071237
+  },
+  "image_details": {
+    "code_area": {
+      "bytes": 4502368,
+      "compilation_units": 7195
+    },
+    "total_bytes": 12123032,
+    "image_heap": {
+      "bytes": 7352320,
+      "objects": {
+        "count": 104902
+      },
+      "resources": {
+        "bytes": 152415,
+        "count": 5
+      }
+    }
+  },
+  "general_info": {
+    "c_compiler": "gcc (redhat, x86_64, 12.2.1)",
+    "name": "testmehello",
+    "java_version": "17.0.7-beta+1-202302142331",
+    "garbage_collector": "Serial GC",
+    "graalvm_version": "GraalVM 23.0.0-dev Java 17.0.7-beta+1-202302142331 Mandrel Distribution"
+  },
+  "analysis_results": {
+    "types": {
+      "total": 3923,
+      "reflection": 862,
+      "jni": 58,
+      "reachable": 2794
+    },
+    "methods": {
+      "total": 28569,
+      "reflection": 337,
+      "jni": 52,
+      "reachable": 12762,
+      "foreign_downcalls": 3,
+      "foreign_upcalls": 7
+    },
+    "fields": {
+      "total": 6759,
+      "reflection": 0,
+      "jni": 58,
+      "reachable": 3448
+    }
+  }
+}
