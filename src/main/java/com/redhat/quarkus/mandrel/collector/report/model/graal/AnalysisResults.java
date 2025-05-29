@@ -33,7 +33,7 @@ public class AnalysisResults {
     @JsonProperty("fields")
     private ExecutableStats fieldStats;
     @JsonProperty("methods")
-    private ExecutableStats methodStats;
+    private MethodStats methodStats;
 
     public ExecutableStats getClassStats() {
         // Prefer newer type stats over older class stats
@@ -63,11 +63,11 @@ public class AnalysisResults {
         this.fieldStats = fieldStats;
     }
 
-    public ExecutableStats getMethodStats() {
+    public MethodStats getMethodStats() {
         return methodStats;
     }
 
-    public void setMethodStats(ExecutableStats methodStats) {
+    public void setMethodStats(MethodStats methodStats) {
         this.methodStats = methodStats;
     }
 }

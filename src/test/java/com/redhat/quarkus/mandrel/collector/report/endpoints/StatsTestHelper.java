@@ -76,15 +76,7 @@ public class StatsTestHelper {
         return token;
     }
 
-    public static GraalStats parseV090Stat() {
-        return parseJson(getV090StatString());
-    }
-
-    public static GraalStats parseV091Stat() {
-        return parseJson(getV091StatString());
-    }
-
-    private static GraalStats parseJson(String raw) {
+    public static GraalStats parseJson(String raw) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -100,6 +92,10 @@ public class StatsTestHelper {
 
     public static String getV091StatString() {
         return getStatString("build-stats-0.9.1.json");
+    }
+
+    public static String getV094StatString() {
+        return getStatString("build-stats-0.9.4.json");
     }
 
     public static String getStatString(String name) {
