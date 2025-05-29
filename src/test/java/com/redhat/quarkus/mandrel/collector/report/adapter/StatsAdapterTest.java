@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.redhat.quarkus.mandrel.collector.report.model.graal.MethodStats;
 import org.junit.jupiter.api.Test;
 
 import com.redhat.quarkus.mandrel.collector.report.model.BuildPerformanceStats;
@@ -52,7 +53,8 @@ public class StatsAdapterTest {
 
     private enum SchemaVersion {
         VER_0_9_0,
-        VER_0_9_1
+        VER_0_9_1,
+        VER_0_9_4
     }
 
     private static class StatResult {
@@ -71,6 +73,7 @@ public class StatsAdapterTest {
     public void canAdaptGraalToImageStats() {
         doVersionTest(SchemaVersion.VER_0_9_0);
         doVersionTest(SchemaVersion.VER_0_9_1);
+        doVersionTest(SchemaVersion.VER_0_9_4);
     }
 
     private void doVersionTest(SchemaVersion version) {
@@ -88,9 +91,28 @@ public class StatsAdapterTest {
             case VER_0_9_1:
                 version091Assertions(s);
                 break;
+            case VER_0_9_4:
+                version094Assertions(s);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown schema version " + version);
         }
+    }
+
+    private void version094Assertions(StatResult s) {
+        ImageStats im = s.im;
+        GraalStats gs = s.gs;
+        // 0.9.4 must have timing stats
+        assertTrue(im.getResourceStats().getTotalTimeSeconds() > 0);
+        // 0.9.4 must have typeStats
+        assertNotNull(gs.getAnalysisResults().getTypeStats());
+        // 0.9.4 must have max_heap stats
+        assertTrue(gs.getResourceUsage().getGc().getMaxHeap() > 0);
+        // 0.9.4 must have parallelism stats
+        assertTrue(gs.getResourceUsage().getCpu().getParallelism() > 0);
+        // 0.9.4 must have foreign downcalls and upcalls
+        assertTrue(gs.getAnalysisResults().getMethodStats().getForeignDowncalls() > 0);
+        assertTrue(gs.getAnalysisResults().getMethodStats().getForeignUpcalls() > 0);
     }
 
     private void version091Assertions(StatResult s) {
@@ -183,10 +205,32 @@ public class StatsAdapterTest {
                 return produceGraalStatVers090(withDebugInfo);
             case VER_0_9_1:
                 return produceGraalStatVers091(withDebugInfo);
+            case VER_0_9_4:
+                return produceGraalStatVers094(withDebugInfo);
             default:
                 throw new IllegalArgumentException("Unknown schema version " + version);
 
         }
+    }
+
+    private GraalStats produceGraalStatVers094(boolean withDebugInfo) {
+        GraalStats s = produceGenericBaseStat(withDebugInfo);
+        // Schema 0.9.4 uses typeStats, sets build time, max_heap, parallelism, foreign_downcalls and foreign upcalls
+        ExecutableStats typeStats = new ExecutableStats();
+        typeStats.setJni(10);
+        typeStats.setReflection(1222);
+        typeStats.setTotal(2000);
+        typeStats.setReachable(1800);
+        s.getAnalysisResults().setTypeStats(typeStats);
+        ResourceUsage rs = s.getResourceUsage();
+        rs.setTotalTimeSecs(30.232);
+        rs.getCpu().setParallelism(6);
+        rs.getGc().setMaxHeap(1024 * 1024);
+        MethodStats methodStats = new MethodStats();
+        methodStats.setForeignDowncalls(23);
+        methodStats.setForeignUpcalls(76);
+        s.getAnalysisResults().setMethodStats(methodStats);
+        return s;
     }
 
     private GraalStats produceGraalStatVers091(boolean withDebugInfo) {
@@ -237,7 +281,7 @@ public class StatsAdapterTest {
         usage.setGc(gcInfo);
 
         AnalysisResults analysis = new AnalysisResults();
-        ExecutableStats methodStats = new ExecutableStats();
+        MethodStats methodStats = new MethodStats();
         methodStats.setJni(2);
         methodStats.setReflection(121);
         methodStats.setTotal(330);
