@@ -387,16 +387,16 @@ public class ImageStatsResourceTest {
         String token = StatsTestHelper.login(Mode.READ_WRITE);
         String myTag = "import-test";
         List<Long> statIds = new ArrayList<>();
-        String json = StatsTestHelper.getV090StatString();
-        GraalStats gStat = StatsTestHelper.parseV090Stat();
+        String json;
+        GraalStats gStat;
+        ResponseBody<?> body;
+        ImageStats result;
 
         try {
             // Import v0.9.0 schema graal json
-            ResponseBody<?> body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                    .post(IMPORT_URL + "?t=" + myTag).body();
-            ImageStats result = body.as(ImageStats.class);
-            assertEquals(myTag, result.getTag());
-            assertTrue(result.getId() > 0);
+            json = StatsTestHelper.getV090StatString();
+            result = getImageStats(token, json, myTag);
+            gStat = StatsTestHelper.parseJson(json);
             assertEquals(gStat.getAnalysisResults().getClassStats().getReachable(),
                     result.getReachableStats().getNumClasses());
             assertTrue(result.getResourceStats().getTotalTimeSeconds() < 0);
@@ -404,12 +404,8 @@ public class ImageStatsResourceTest {
 
             // Import v0.9.1 schema graal json
             json = StatsTestHelper.getV091StatString();
-            gStat = StatsTestHelper.parseV091Stat();
-            body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
-                    .post(IMPORT_URL + "?t=" + myTag).body();
-            result = body.as(ImageStats.class);
-            assertEquals(myTag, result.getTag());
-            assertTrue(result.getId() > 0);
+            result = getImageStats(token, json, myTag);
+            gStat = StatsTestHelper.parseJson(json);
             assertEquals(gStat.getAnalysisResults().getTypeStats().getReachable(),
                     result.getReachableStats().getNumClasses());
             assertTrue(result.getResourceStats().getTotalTimeSeconds() > 0);
@@ -433,6 +429,17 @@ public class ImageStatsResourceTest {
             given().when().header("token", token).get(StatsTestHelper.BASE_URL).then().statusCode(200).body(is("[]"));
             TestUtil.checkLog();
         }
+    }
+
+    private static ImageStats getImageStats(String token, String json, String myTag) {
+        ImageStats result;
+        ResponseBody<?> body;
+        body = given().contentType(ContentType.JSON).header("token", token).body(json).when()
+                .post(IMPORT_URL + "?t=" + myTag).body();
+        result = body.as(ImageStats.class);
+        assertEquals(myTag, result.getTag());
+        assertTrue(result.getId() > 0);
+        return result;
     }
 
     @Test
