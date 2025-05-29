@@ -11,28 +11,28 @@ env:
 
 jobs:
   deployment:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment: prod
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.1.0'
       - name: Setup yarn
         run: npm install -g yarn@1.22.17
-      - name: Install JDK 17
-        uses: actions/setup-java@v2
+      - name: Install JDK 21
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - name: Package
         # We don't want the native executable to be built wth test profile (e.g. including superfluous test resources)
         run: >-
@@ -54,7 +54,7 @@ jobs:
           scp -o UserKnownHostsFile=~/known_hosts ./target/collector-*-runner collector@${{ secrets.SERVER_ADDRESS }}:/home/collector/prod/collector.deploy
           ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl restart collector.foci.life"
           echo "Version $(git describe --tags --always) should be on https://collector.foci.life/"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-reports-${{ runner.os }}
