@@ -30,6 +30,9 @@ public class CPUInfo {
     @JsonProperty("load")
     private double cpuLoad;
 
+    @JsonProperty("parallelism")
+    private long parallelism;
+
     public long getCoresTotal() {
         return coresTotal;
     }
@@ -44,5 +47,13 @@ public class CPUInfo {
 
     public void setCpuLoad(double cpuLoad) {
         this.cpuLoad = cpuLoad;
+    }
+
+    public long getParallelism() {
+        return parallelism;
+    }
+
+    public void setParallelism(long parallelism) {
+        this.parallelism = parallelism;
     }
 }

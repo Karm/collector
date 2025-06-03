@@ -30,6 +30,9 @@ public class GCInfo {
     @JsonProperty("total_secs")
     private double totalSecs;
 
+    @JsonProperty("max_heap")
+    private double maxHeap;
+
     public long getCount() {
         return count;
     }
@@ -44,5 +47,13 @@ public class GCInfo {
 
     public void setTotalSecs(double totalSecs) {
         this.totalSecs = totalSecs;
+    }
+
+    public double getMaxHeap() {
+        return maxHeap;
+    }
+
+    public void setMaxHeap(double maxHeap) {
+        this.maxHeap = maxHeap;
     }
 }
