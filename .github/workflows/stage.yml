@@ -56,7 +56,6 @@ jobs:
           ssh-add - <<< "$SSH_KEY"
           scp -o UserKnownHostsFile=~/known_hosts ./target/collector-*-runner collector@${{ secrets.SERVER_ADDRESS }}:/home/collector/stage/collector.deploy
           ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl restart stage-collector.foci.life"
-          ssh -o UserKnownHostsFile=~/known_hosts collector@${{ secrets.SERVER_ADDRESS }} "sudo systemctl status stage-collector.foci.life"
           echo "Version $(git describe --tags --always) should be on https://stage-collector.foci.life/"
       - uses: actions/upload-artifact@v4
         if: always()
