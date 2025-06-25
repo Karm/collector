@@ -94,24 +94,6 @@ The prod environment is deployed manually by running the [prod](https://github.c
 
 Having trouble with TestContainers and Podman? Take a look: https://quarkus.io/blog/quarkus-devservices-testcontainers-podman/
 
-## Development
-
-Live-reload dev mode:
-```
-./mvnw clean quarkus:dev
-```
-
-How to store a DB dump, if you need to:
-```
-mysqldump --lock-all-tables --routines --add-drop-table --disable-keys --extended-insert \
-  --events -u root -p --host=127.0.0.1 --port=49158 stage_collector > stage_collector.dump
-```
-
-How to load your local DB dump if you want to:
-```
-mysql -u root -p --host=127.0.0.1 --port=49158 quarkus < stage_collector.dump
-```
-
 ## Systemd
 
 The server is controlled by systemd, e.g. in this way:
@@ -148,54 +130,25 @@ QUARKUS_MAILER_USERNAME=????
 QUARKUS_MAILER_PASSWORD=????
 ```
 
-# Angular UI development
-
-## Prerequisites
-
-Be sure you've got at least node/yarn versions mentioned in `pom.xml` installed on your system.
-
 ## Development
 
-The easiest way to develop the UI is using `yarn proxy` from the `frontend` directory once the
-Quarkus back-end is up and running:
+Collector is using [Quarkus Quinoa](https://docs.quarkiverse.io/quarkus-quinoa/dev/index.html#) for managing its
+frontend part which is based on angular.
 
+To run both the frontend and the backend in live-reload dev mode run:
 ```
-$ ./mvnw -Dui.deps -Dui.dev clean quarkus:dev
-```
-
-In another terminal do:
-
-```
-$ cd frontend
-$ yarn proxy
-yarn run v1.22.10
-$ ng serve --proxy-config proxy.conf.json
-✔ Browser application bundle generation complete.
-
-Initial Chunk Files   | Names         |  Raw Size
-vendor.js             | vendor        |   3.47 MB | 
-polyfills.js          | polyfills     | 294.79 kB | 
-styles.css, styles.js | styles        | 251.74 kB | 
-main.js               | main          |  36.31 kB | 
-runtime.js            | runtime       |   6.51 kB | 
-
-                      | Initial Total |   4.04 MB
-
-Build at: 2022-05-11T15:52:35.414Z - Hash: 687102ba1903194d - Time: 4589ms
-
-** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
-
-
-✔ Compiled successfully.
+./mvnw clean quarkus:dev
 ```
 
-Then open the browser at http://localhost:4200/
+Quinoa will take care of installing the necessary dependencies for the frontend part.
 
-## Compile for Deployment
-
-Steps are similar to compiling the development version, but using `-Dui` (over `-Dui.dev`) instead.
-
+### How to store a DB dump, if you need to:
 ```
-$ ./mvnw -Dui.deps -Dui clean package
+mysqldump --lock-all-tables --routines --add-drop-table --disable-keys --extended-insert \
+  --events -u root -p --host=127.0.0.1 --port=49158 stage_collector > stage_collector.dump
 ```
 
+### How to load your local DB dump if you want to:
+```
+mysql -u root -p --host=127.0.0.1 --port=49158 quarkus < stage_collector.dump
+```
